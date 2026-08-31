@@ -3,6 +3,7 @@ const router = express.Router();
 const { extractTripDetails } = require('../services/extractionService');
 const { getCoordinates } = require('../services/geocodingService');
 const { getWeatherForecast } = require('../services/weatherService');
+const { getAttractions } = require('../services/attractionsService');
 
 // Temporary test route - we'll remove this later
 router.get('/test-weather', async (req, res) => {
@@ -30,6 +31,18 @@ router.post('/extract', async (req, res) => {
   } catch (err) {
     console.error('Extraction error:', err);
     res.status(500).json({ error: 'Failed to extract trip details.' });
+  }
+});
+
+router.get('/test-attractions', async (req, res) => {
+  try {
+    const { destination } = req.query;
+    const coords = await getCoordinates(destination);
+    const attractions = await getAttractions(coords.latitude, coords.longitude);
+    res.json({ coords, attractions });
+  } catch (err) {
+    console.error('Attractions test error:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 
