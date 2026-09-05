@@ -5,6 +5,9 @@ const { getCoordinates } = require('../services/geocodingService');
 const { getWeatherForecast } = require('../services/weatherService');
 const { getAttractions } = require('../services/attractionsService');
 const { buildItinerary } = require('../services/itineraryService');
+const { saveTrip, getTrip } = require('../services/tripStore');
+const crypto = require('crypto'); // built into Node, no install needed
+const { interpretUpdateRequest } = require('../services/chatUpdateService');
 
 // Temporary test route - we'll remove this later
 router.get('/test-weather', async (req, res) => {
@@ -68,10 +71,54 @@ router.post('/plan', async (req, res) => {
 
     // 4. Compile everything into one itinerary object
     const itinerary = buildItinerary(tripDetails, forecast);
+    
+    // 5. Store it so we can patch it later via chat updates
+    const tripId = crypto.randomUUID();
+    saveTrip(tripId, itinerary);
 
-    res.json({ coords, itinerary });
+    res.json({ tripId, coords, itinerary });
+
   } catch (err) {
     console.error('Plan error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/:tripId/update', async (req, res) => {
+  const { tripId } = req.params;
+  const { message } = req.body;
+
+  if (!message || typeof message !== 'string') {
+    return res.status(400).json({ error: 'Please provide a "message" field.' });
+  }
+
+  const itinerary = getTrip(tripId);
+  if (!itinerary) {
+    return res.status(404).json({ error: 'Trip not found. Plan a trip first to get a tripId.' });
+  }
+
+  try {
+    const interpretation = await interpretUpdateRequest(message, itinerary);
+    const { targetDate, field, suggestion } = interpretation;
+
+    const day = itinerary.days.find(d => d.date === targetDate);
+    if (!day) {
+      return res.status(400).json({ error: 'Could not determine which day you meant.', interpretation });
+    }
+
+    if (field === 'restaurants') {
+      day.restaurants = [suggestion];
+    } else if (field === 'attractions') {
+      day.attractions = [{ name: suggestion }];
+    } else if (field === 'hotel') {
+      day.hotel = { name: suggestion };
+    }
+
+    saveTrip(tripId, itinerary); // persist the change back into the store
+
+    res.json({ updatedDay: day, interpretation });
+  } catch (err) {
+    console.error('Update error:', err);
     res.status(500).json({ error: err.message });
   }
 });
