@@ -106,9 +106,7 @@ router.post('/:tripId/update', async (req, res) => {
       return res.status(400).json({ error: 'Could not determine which day you meant.', interpretation });
     }
 
-    if (field === 'restaurants') {
-      day.restaurants = [suggestion];
-    } else if (field === 'attractions') {
+    if (field === 'restaurants' || field === 'attractions') {
       day.attractions = [{ name: suggestion }];
     } else if (field === 'hotel') {
       day.hotel = { name: suggestion };

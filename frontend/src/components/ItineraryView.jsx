@@ -2,15 +2,16 @@ import DayCard from './DayCard';
 
 function ItineraryView({ itinerary }) {
   return (
-    <div>
-      <h2>
-        {itinerary.destination} — {itinerary.travelers} traveler(s), {itinerary.currency} {itinerary.budget}
-      </h2>
-      <p><strong>Preferences:</strong> {itinerary.preferences.join(', ') || 'None specified'}</p>
-
+    <div className="itinerary glass-panel">
+      <h2> {itinerary.destination} </h2>
+      <p className = "itinerary-meta">
+         {itinerary.travelers} traveler(s) · {itinerary.currency} {itinerary.budget} · {itinerary.preferences.join(', ') || 'No preferences specified'}
+      </p>
+      <div className= "day-list">
       {itinerary.days.map(day => (
         <DayCard key={day.date} day={day} />
       ))}
+      </div>
     </div>
   );
 }

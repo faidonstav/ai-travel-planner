@@ -14,8 +14,19 @@ Given the user's message, respond with ONLY valid JSON, no markdown:
   "suggestion": string (a short, specific, plausible suggestion for that field, appropriate to the destination)
 }
 
-Important: since there is no live restaurant/hotel/attraction database connected yet, clearly generate the "suggestion" as a realistic-sounding placeholder, not a claim about a real, verified business.`;
+Field classification rules:
+- "restaurants": use this for ANY request about food, dining, eating, restaurants, cafes, or where to eat.
+- "attractions": use this for sightseeing, landmarks, museums, temples, parks, or things to do/visit.
+- "hotel": use this for accommodation, lodging, or where to stay.
+- "other": anything that doesn't fit the above.
 
+Examples:
+- "find me the best restaurant for day 3" -> field: "restaurants"
+- "where should I eat on day 2" -> field: "restaurants"
+- "what temple should I visit on day 1" -> field: "attractions"
+- "find me a hotel near the station" -> field: "hotel"
+
+Important: since there is no live restaurant/hotel/attraction database connected yet, clearly generate the "suggestion" as a realistic-sounding placeholder, not a claim about a real, verified business.`;
   const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash', systemInstruction: systemPrompt });
   const result = await model.generateContent(message);
   const rawText = result.response.text();

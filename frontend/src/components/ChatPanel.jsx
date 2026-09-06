@@ -8,10 +8,8 @@ function ChatPanel({ tripId, onDayUpdated }) {
 
   async function handleSend() {
     if (!message.trim()) return;
-
     setLoading(true);
     setError(null);
-
     try {
       const result = await updateTrip(tripId, message);
       onDayUpdated(result.updatedDay);
@@ -24,19 +22,20 @@ function ChatPanel({ tripId, onDayUpdated }) {
   }
 
   return (
-    <div style={{ marginTop: '20px', borderTop: '1px solid #ccc', paddingTop: '12px' }}>
-      <input
-        type="text"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-        placeholder="e.g. Find me the best restaurant for day 3"
-        style={{ width: '80%' }}
-      />
-      <button onClick={handleSend} disabled={loading}>
-        {loading ? 'Updating...' : 'Send'}
-      </button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <div className="chat-panel-wrapper glass-panel">
+      <div className="chat-panel">
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          placeholder="e.g. Find me the best restaurant for day 3"
+        />
+        <button onClick={handleSend} disabled={loading}>
+          {loading ? '···' : 'Send'}
+        </button>
+      </div>
+      {error && <p className="error-text">{error}</p>}
     </div>
   );
 }

@@ -8,10 +8,8 @@ function TripInputForm({ onPlanReady }) {
 
   async function handleSubmit() {
     if (!text.trim()) return;
-
     setLoading(true);
     setError(null);
-
     try {
       const result = await planTrip(text);
       onPlanReady(result);
@@ -24,17 +22,19 @@ function TripInputForm({ onPlanReady }) {
 
   return (
     <div>
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Describe your trip... e.g. 5 days in Kyoto in September, budget $1500, love food and temples"
-        rows={4}
-        style={{ width: '100%' }}
-      />
-      <button onClick={handleSubmit} disabled={loading}>
-        {loading ? 'Planning...' : 'Plan my trip'}
-      </button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <div className="trip-input glass-panel">
+        <input
+          type="text"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+          placeholder="Describe your trip... "
+        />
+        <button onClick={handleSubmit} disabled={loading}>
+          {loading ? '...' : '↑'}
+        </button>
+      </div>
+      {error && <p className="error-text" style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 }
