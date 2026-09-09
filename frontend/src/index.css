@@ -106,7 +106,7 @@ body {
 
 .itinerary {
   width: 100%;
-  max-width: 640px;
+  max-width: 1500px;
   margin-top: 48px;
   padding: 28px 32px;
 }
@@ -122,8 +122,9 @@ body {
 
 .day-list {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 16px;
   margin-top: 20px;
 }
 
@@ -132,6 +133,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   padding: 16px 20px;
+  flex: 1 1 220px;
 }
 
 .day-card h3 {
