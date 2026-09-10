@@ -1,4 +1,5 @@
 import DayCard from './DayCard';
+import HotelsCard from './HotelsCard';
 
 function ItineraryView({ itinerary }) {
   return (
@@ -7,6 +8,11 @@ function ItineraryView({ itinerary }) {
       <p className = "itinerary-meta">
          {itinerary.travelers} traveler(s) · {itinerary.currency} {itinerary.budget} · {itinerary.preferences.join(', ') || 'No preferences specified'}
       </p>
+
+      <div >
+      <HotelsCard hotels={itinerary.hotelOptions} />
+      </div>
+
       <div className= "day-list">
       {itinerary.days.map(day => (
         <DayCard key={day.date} day={day} />

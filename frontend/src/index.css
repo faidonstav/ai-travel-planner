@@ -150,6 +150,30 @@ body {
   color: var(--text-secondary);
   margin-right: 6px;
 }
+
+.hotels-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 16px 20px;
+  flex: 1 1 220px;
+}
+
+.hotels-card h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.hotels-card p {
+  margin: 4px 0;
+  font-size: 0.92rem;
+}
+
+.hotels-card .label {
+  color: var(--text-secondary);
+  margin-right: 6px;
+}
+
 .chat-panel-wrapper {
   width: 100%;
   max-width: 640px;

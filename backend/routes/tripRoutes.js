@@ -8,6 +8,7 @@ const { buildItinerary } = require('../services/itineraryService');
 const { saveTrip, getTrip } = require('../services/tripStore');
 const crypto = require('crypto'); // built into Node, no install needed
 const { interpretUpdateRequest } = require('../services/chatUpdateService');
+const { getHotels } = require('../services/hotelsService');
 
 // Temporary test route - we'll remove this later
 router.get('/test-weather', async (req, res) => {
@@ -68,11 +69,19 @@ router.post('/plan', async (req, res) => {
     const startDate = tripDetails.startDate || new Date().toISOString().split('T')[0];
     const endDate = tripDetails.endDate || new Date(Date.now() + 4 * 86400000).toISOString().split('T')[0];
     const forecast = await getWeatherForecast(coords.latitude, coords.longitude, startDate, endDate);
-
-    // 4. Compile everything into one itinerary object
-    const itinerary = buildItinerary(tripDetails, forecast);
     
-    // 5. Store it so we can patch it later via chat updates
+    // 4. Hotels are non-critical — if this fails, we still want the itinerary to succeed
+    let hotels = [];
+    try {
+      hotels = await getHotels(tripDetails.destination, startDate, endDate);
+    } catch (hotelErr) {
+      console.error('Hotel fetch failed, continuing without hotels:', hotelErr.response?.data || hotelErr.message);
+    }
+
+    // 5. Compile everything into one itinerary object
+    const itinerary = buildItinerary(tripDetails, forecast, hotels);
+    
+    // 6. Store it so we can patch it later via chat updates
     const tripId = crypto.randomUUID();
     saveTrip(tripId, itinerary);
 
@@ -118,6 +127,17 @@ router.post('/:tripId/update', async (req, res) => {
   } catch (err) {
     console.error('Update error:', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/test-hotels', async (req, res) => {
+  try {
+    const { destination, checkIn, checkOut } = req.query;
+    const hotels = await getHotels(destination, checkIn, checkOut);
+    res.json({ hotels });
+  } catch (err) {
+    console.error('Hotels test error:', err.response?.data || err.message);
+    res.status(500).json({ error: err.response?.data || err.message });
   }
 });
 
