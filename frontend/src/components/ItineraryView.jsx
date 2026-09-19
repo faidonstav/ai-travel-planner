@@ -1,5 +1,5 @@
 import DayCard from './DayCard';
-import HotelsCard from './HotelsCard';
+import HotelsSection from './HotelsSection';
 
 function ItineraryView({ itinerary }) {
   return (
@@ -9,9 +9,7 @@ function ItineraryView({ itinerary }) {
          {itinerary.travelers} traveler(s) · {itinerary.currency} {itinerary.budget} · {itinerary.preferences.join(', ') || 'No preferences specified'}
       </p>
 
-      <div >
-      <HotelsCard hotels={itinerary.hotelOptions} />
-      </div>
+      <HotelsSection hotels={itinerary.hotelOptions} />
 
       <div className= "day-list">
       {itinerary.days.map(day => (

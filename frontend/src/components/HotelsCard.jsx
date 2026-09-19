@@ -1,19 +1,18 @@
-function HotelsCard({ hotels }) {
+function HotelsCard({ hotel }) {
   return (
-    <div className="hotels-card">
-      <h3>Hotels</h3>
-      {hotels.length > 0 ? (
-        <ul>
-          {hotels.map(hotel => (
-            <li key={hotel.id}>
-              <strong>{hotel.name}</strong> — {hotel.currency} {hotel.pricePerNight}/night
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No hotels found.</p>
-      )}
-    </div>
+    <a
+      href={hotel.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hotel-card"
+    >
+      <div className="hotel-card-body">
+        <h4>{hotel.name}</h4>
+        <p className="hotel-platform">{hotel.platform}</p>
+        <p className="hotel-rating"> {hotel.rating} / {hotel.ratingScale} ⭐</p>
+        <p className="hotel-price"> {hotel.pricePerNight} {hotel.currency}/ night {"->"} {hotel.totalPrice} {hotel.currency} </p>
+      </div>
+    </a>
   );
 }
 
