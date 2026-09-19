@@ -5,14 +5,24 @@ function TripInputForm({ onPlanReady }) {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [notice, setNotice] = useState(null);
 
   async function handleSubmit() {
     if (!text.trim()) return;
     setLoading(true);
     setError(null);
+    setNotice(null);
+
     try {
       const result = await planTrip(text);
+
+      if (result.needsClarification){
+        setNotice(result.message);
+        setText('');
+        return;
+      }
       onPlanReady(result);
+      setText('');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -34,7 +44,8 @@ function TripInputForm({ onPlanReady }) {
           {loading ? '...' : '↑'}
         </button>
       </div>
-      {error && <p className="error-text" style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error-text">{error}</p>}
+      {notice && <p className = "notice-text">{notice}</p>}
     </div>
   );
 }

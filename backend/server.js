@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const tripRoutes = require('./routes/tripRoutes');
-
 const app = express();
 
 // Middleware: lets Express read JSON bodies from POST requests
@@ -21,4 +20,5 @@ app.use('/api/trips', tripRoutes);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+
 });

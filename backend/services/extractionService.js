@@ -6,12 +6,12 @@ async function extractTripDetails(userText) {
   const systemPrompt = `You extract structured trip details from a user's travel description.
 Respond with ONLY valid JSON, no markdown, no explanation, matching exactly this shape:
 {
-  "destination": string,
-  "startDate": string or null (YYYY-MM-DD if given, otherwise null),
+  "destination": string (if the text does not clearly describe a travel destination, set "destination" to null),
+  "startDate": string (if the text does not clearly describe the starting date of trip, set "startDate" to null),
   "endDate": string or null,
   "durationDays": number or null,
-  "budget": number or null,
-  "currency": string (default "USD"),
+  "budget": number (if the text does not clearly describe the budget of trip, set "budget" to null),
+  "currency": string (default "EURO"),
   "preferences": string[],
   "travelers": number (default 1)
 }`;
@@ -24,4 +24,12 @@ Respond with ONLY valid JSON, no markdown, no explanation, matching exactly this
   return JSON.parse(cleaned);
 }
 
-module.exports = { extractTripDetails };
+function getMissingFields(extracted){
+  const missing = [];
+  if(!extracted.destination) missing.push('destination');
+  if(!extracted.startDate) missing.push('dates');
+  if(!extracted.budget) missing.push('budget');
+  return missing;
+}
+
+module.exports = { extractTripDetails, getMissingFields };

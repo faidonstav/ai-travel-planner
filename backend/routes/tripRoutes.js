@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { extractTripDetails } = require('../services/extractionService');
+const { extractTripDetails, getMissingFields } = require('../services/extractionService');
 const { getCoordinates } = require('../services/geocodingService');
 const { getWeatherForecast } = require('../services/weatherService');
 const { getAttractions } = require('../services/attractionsService');
@@ -54,20 +54,42 @@ router.get('/test-attractions', async (req, res) => {
 router.post('/plan', async (req, res) => {
   const { text } = req.body;
 
-  if (!text || typeof text !== 'string') {
-    return res.status(400).json({ error: 'Please provide a "text" field describing your trip.' });
+  if (!text || typeof text !== 'string'){
+    return res.status(400).json({ error: 'Please provide a "text" field describing your trip.'});
   }
 
   try {
     // 1. Extract structured details from the free text
     const tripDetails = await extractTripDetails(text);
+    const missing = getMissingFields(tripDetails);
+
+    if(missing.length > 0){
+      if(missing.includes("destination") == true){
+        return res.json({
+          needsClarification: true,
+          message: 'Please tell me the travel destination for your trip.'
+        });
+      }
+      if(missing.includes("dates") == true){
+        return res.json({
+          needsClarification: true,
+          message: 'Please also tell me when you plan to trip the travel.'
+        });
+      }
+      if(missing.includes("budget") == true){
+        return res.json({
+          needsClarification: true,
+          message: 'Please tell me the budget of this trip.'
+        })
+      }
+    }
 
     // 2. Geocode the destination
     const coords = await getCoordinates(tripDetails.destination);
 
     // 3. Get weather for the trip dates (falls back to a default 5-day window if the AI didn't extract dates)
-    const startDate = tripDetails.startDate || new Date().toISOString().split('T')[0];
-    const endDate = tripDetails.endDate || new Date(Date.now() + 4 * 86400000).toISOString().split('T')[0];
+    const startDate = tripDetails.startDate;
+    const endDate = tripDetails.endDate; 
     const forecast = await getWeatherForecast(coords.latitude, coords.longitude, startDate, endDate);
     
     // 4. Hotels are non-critical — if this fails, we still want the itinerary to succeed
@@ -86,6 +108,7 @@ router.post('/plan', async (req, res) => {
     saveTrip(tripId, itinerary);
 
     res.json({ tripId, coords, itinerary });
+
 
   } catch (err) {
     console.error('Plan error:', err);

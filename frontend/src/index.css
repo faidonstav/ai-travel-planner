@@ -98,7 +98,14 @@ body {
 }
 
 .error-text {
-  color: #ff8a8a;
+  color: red;
+  font-size: 0.85rem;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.notice-text{
+  color: var(--text-secondary);
   font-size: 0.85rem;
   margin-top: 8px;
   text-align: center;
