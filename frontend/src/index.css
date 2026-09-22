@@ -255,3 +255,82 @@ body {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.nav-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.nav-tabs button {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  padding: 8px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.nav-tabs button.active {
+  background: var(--accent);
+  color: white;
+  border-color: transparent;
+}
+
+.itinerary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.save-btn {
+  border-radius: 999px;
+  border: none;
+  padding: 8px 18px;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.save-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.saved-trips-wrapper {
+  width: 100%;
+  max-width: 900px;
+  margin-top: 40px;
+}
+
+.saved-trips-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.saved-trip-card {
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.saved-trip-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.saved-trip-card h3 {
+  margin: 0 0 8px;
+}
+
+.saved-trip-card p {
+  margin: 3px 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}

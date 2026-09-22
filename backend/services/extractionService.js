@@ -3,7 +3,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 async function extractTripDetails(userText) {
-  const systemPrompt = `You extract structured trip details from a user's travel description.
+  const systemPrompt = `You extract structured trip details from a user's travel description, and also suggest daily attractions and restaurants for the trip.
 Respond with ONLY valid JSON, no markdown, no explanation, matching exactly this shape:
 {
   "destination": string (if the text does not clearly describe a travel destination, set "destination" to null),
@@ -13,8 +13,14 @@ Respond with ONLY valid JSON, no markdown, no explanation, matching exactly this
   "budget": number (if the text does not clearly describe the budget of trip, set "budget" to null),
   "currency": string (default "EURO"),
   "preferences": string[],
-  "travelers": number (default 1)
-}`;
+  "travelers": number (default 1),
+  "dailySuggestions": [
+  { "day": number (1-indexed, 1= first day of the trip), "attractions": string[] (1-2 items), "restaurants": string[] (1-2 items) }
+   ]
+}
+  For "dailySuggestions": generate one entry per day of the trip. If durationDays is known, use that count; if unknown, assume 5 days. Base suggestions on the destination and preferences. Vary suggestions across days — don't repeat the same one twice.
+
+  Important: since there is no live attractions/restaurants database connected yet, generate "dailySuggestions" entries as realistic-sounding, destination-appropriate placeholders — not claims about verified, currently operating businesses.`;
 
   const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash', systemInstruction: systemPrompt });
   const result = await model.generateContent(userText);

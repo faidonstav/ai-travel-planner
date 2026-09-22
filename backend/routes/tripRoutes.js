@@ -5,7 +5,7 @@ const { getCoordinates } = require('../services/geocodingService');
 const { getWeatherForecast } = require('../services/weatherService');
 const { getAttractions } = require('../services/attractionsService');
 const { buildItinerary } = require('../services/itineraryService');
-const { saveTrip, getTrip } = require('../services/tripStore');
+const { saveTrip, getTrip, markTripSaved, getSavedTrips } = require('../services/tripStore');
 const crypto = require('crypto'); // built into Node, no install needed
 const { interpretUpdateRequest } = require('../services/chatUpdateService');
 const { getHotels } = require('../services/hotelsService');
@@ -103,9 +103,20 @@ router.post('/plan', async (req, res) => {
     // 5. Compile everything into one itinerary object
     const itinerary = buildItinerary(tripDetails, forecast, hotels);
     
+    // Merge daily attraction/restaurant suggestions (from the same extraction call) into each day, matched by position
+    if (Array.isArray(tripDetails.dailySuggestions)) {
+      itinerary.days.forEach((day, index) => {
+        const match = tripDetails.dailySuggestions.find(s => Number(s.day) === index + 1);
+        if (match) {
+          day.attractions = (match.attractions || []).map(name => ({ name }));
+          day.restaurants = match.restaurants || [];
+        }
+      });
+    }
+
     // 6. Store it so we can patch it later via chat updates
     const tripId = crypto.randomUUID();
-    saveTrip(tripId, itinerary);
+    await saveTrip(tripId, itinerary);
 
     res.json({ tripId, coords, itinerary });
 
@@ -124,7 +135,7 @@ router.post('/:tripId/update', async (req, res) => {
     return res.status(400).json({ error: 'Please provide a "message" field.' });
   }
 
-  const itinerary = getTrip(tripId);
+  const itinerary = await getTrip(tripId);
   if (!itinerary) {
     return res.status(404).json({ error: 'Trip not found. Plan a trip first to get a tripId.' });
   }
@@ -138,13 +149,14 @@ router.post('/:tripId/update', async (req, res) => {
       return res.status(400).json({ error: 'Could not determine which day you meant.', interpretation });
     }
 
-    if (field === 'restaurants' || field === 'attractions') {
-      day.attractions = [{ name: suggestion }];
-    } else if (field === 'hotel') {
-      day.hotel = { name: suggestion };
+    if (field === 'restaurants') {
+      day.restaurants = [suggestion ];
     }
+    else if (field === 'attractions') {
+      day.attractions = [suggestion];
+    } 
 
-    saveTrip(tripId, itinerary); // persist the change back into the store
+    await saveTrip(tripId, itinerary); // persist the change back into the store
 
     res.json({ updatedDay: day, interpretation });
   } catch (err) {
@@ -161,6 +173,44 @@ router.get('/test-hotels', async (req, res) => {
   } catch (err) {
     console.error('Hotels test error:', err.response?.data || err.message);
     res.status(500).json({ error: err.response?.data || err.message });
+  }
+});
+
+router.post('/:tripId/save', async (req, res) => {
+  const { tripId } = req.params;
+  try {
+    const result = await markTripSaved(tripId);
+    if (!result) {
+      return res.status(404).json({ error: 'Trip not found.' });      
+    }
+    res.json({ saved: true, tripId});
+  } catch (err) {
+    console.error('Save trip error:', err.message);
+    res.status(500).json({ error: err.message});
+  }
+});
+
+router.get('/saved', async (req, res) => {
+  try {
+    const trips = await getSavedTrips();
+    res.json({ trips});
+  } catch (err) {
+    console.error('Get saved trips error:', err.message);
+    res.status(500).json({ error: err.message});
+  }
+});
+
+router.get('/:tripId', async (req, res) => {
+  const { tripId } = req.params;
+  try{
+    const itinerary = await getTrip(tripId);
+    if(!itinerary) {
+      return res.status(404).json({ error: 'Trip not found.'});
+    }
+    res.json({ tripId, itinerary});
+  } catch (err) {
+    console.error('Get trip error:', err.message);
+    res.status(500).json({ error: err.message});
   }
 });
 
