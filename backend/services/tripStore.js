@@ -23,7 +23,8 @@ async function markTripSaved(tripId) {
   const result = await pool.query(
     `UPDATE trips SET saved = TRUE 
     WHERE trip_id = $1 
-    RETURNING trip_id, saved`
+    RETURNING trip_id, saved`, 
+    [tripId]
   );
   return result.rows[0] || null;
 }
@@ -37,4 +38,11 @@ async function getSavedTrips() {
   return result.rows;
 }
 
-module.exports = { saveTrip, getTrip, markTripSaved, getSavedTrips };
+async function deleteTrip(tripId) {
+  const result = await pool.query(
+    `DELETE FROM trips WHERE trip_id = $1`, [tripId]
+  );
+  return result.rowCount > 0;
+}
+
+module.exports = { saveTrip, getTrip, markTripSaved, getSavedTrips, deleteTrip };

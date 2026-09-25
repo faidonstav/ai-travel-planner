@@ -5,7 +5,7 @@ const { getCoordinates } = require('../services/geocodingService');
 const { getWeatherForecast } = require('../services/weatherService');
 const { getAttractions } = require('../services/attractionsService');
 const { buildItinerary } = require('../services/itineraryService');
-const { saveTrip, getTrip, markTripSaved, getSavedTrips } = require('../services/tripStore');
+const { saveTrip, getTrip, markTripSaved, getSavedTrips, deleteTrip } = require('../services/tripStore');
 const crypto = require('crypto'); // built into Node, no install needed
 const { interpretUpdateRequest } = require('../services/chatUpdateService');
 const { getHotels } = require('../services/hotelsService');
@@ -213,5 +213,19 @@ router.get('/:tripId', async (req, res) => {
     res.status(500).json({ error: err.message});
   }
 });
+
+router.delete('/:tripId', async (req,res) => {
+  const { tripId } = req.params;
+  try {
+    const deleted = await deleteTrip(tripId);
+    if(!deleted) {
+      return res.status(404).json({ error: 'Trip not found.'});
+    }
+    res.json({ deleted: true, tripId});
+  } catch (err) {
+    console.error('Delete trip error: ', err.message);
+    res.status(500).json({ error: err.message});
+  }
+})
 
 module.exports = router;

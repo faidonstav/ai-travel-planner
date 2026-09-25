@@ -36,8 +36,8 @@ function ItineraryView({ itinerary, tripId }) {
       <HotelsSection hotels={itinerary.hotelOptions} />
 
       <div className="day-list">
-        {itinerary.days.map(day => (
-          <DayCard key={day.date} day={day} />
+        {itinerary.days.map((day, index) => (
+          <DayCard key={day.date} day={day} dayNumber={index +1}/>
         ))}
       </div>
     </div>

@@ -40,7 +40,7 @@ export async function saveTripPermanently(tripId) {
 }
 
 export async function getSavedTrips() {
-  const response = await fetch(`${API_BASE_URL}/saved`, { method: 'POST'});
+  const response = await fetch(`${API_BASE_URL}/saved`);
   if (!response.ok) throw new Error('Failed to load saved trips.');
   return response.json();
 }
@@ -48,5 +48,14 @@ export async function getSavedTrips() {
 export async function getTripById(tripId) {
   const response = await fetch(`${API_BASE_URL}/${tripId}`);
   if (!response.ok) throw new Error('Failed to load trip.');
+  return response.json();
+}
+
+export async function deleteTrip(tripId) {
+  const response = await fetch(`${API_BASE_URL}/${tripId}`, {method: 'DELETE'});
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `Request failed with status ${response.status}`);
+  }
   return response.json();
 }

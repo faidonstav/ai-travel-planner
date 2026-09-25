@@ -11,7 +11,7 @@ async function setup() {
   `);
 
   await pool.query(` 
-    ALTER TABLE trips ADD COLUMN IF NOT EXISTS saved BOOLEAN DEFUALT FALSE;
+    ALTER TABLE trips ADD COLUMN IF NOT EXISTS saved BOOLEAN DEFAULT FALSE;
     `);
     
   console.log('trips table is ready');

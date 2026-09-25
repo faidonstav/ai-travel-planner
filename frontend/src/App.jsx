@@ -10,6 +10,7 @@ function App() {
   const [view, setView] = useState('plan');
   const [tripId, setTripId] = useState(null);
   const [itinerary, setItinerary] = useState(null);
+  const [viewedTrip, setViewedTrip] = useState(null);
 
   function handlePlanReady(result) {
     setTripId(result.tripId);
@@ -26,9 +27,18 @@ function App() {
 
   async function handleSelectSavedTrip(id) {
     const result = await getTripById(id);
-    setTripId(result.tripId);
-    setItinerary(result.itinerary);
-    setView('plan');
+    setViewedTrip({tripId: result.tripId, itinerary: result.itinerary });
+    setView('trip-detail');
+  }
+
+  function handleViewedTripDayUpdated(updatedDay) {
+    setViewedTrip(prev => ({
+      ...prev,
+      itinerary: {
+        ...prev.itinerary,
+        days: prev.itinerary.days.map(d => d.date === updatedDay.date ? updatedDay : d),
+      },
+    }));
   }
 
   return (
@@ -60,6 +70,14 @@ function App() {
         <div className="saved-trips-wrapper">
           <h2>My saved trips</h2>
           <SavedTripsView onSelectTrip={handleSelectSavedTrip} />
+        </div>
+      )}
+
+      {view === 'trip-detail' && viewedTrip && (
+        <div className="trip-detail-wrapper">
+          <button className="back-btn" onClick={() => setView('saved')}>← Back to my trips</button>
+          <ItineraryView itinerary={viewedTrip.itinerary} tripId={viewedTrip.tripId} />
+          <ChatPanel tripId={viewedTrip.tripId} onDayUpdated={handleViewedTripDayUpdated} />
         </div>
       )}
     </div>

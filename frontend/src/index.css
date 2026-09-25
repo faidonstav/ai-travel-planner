@@ -217,13 +217,14 @@ body {
 .chat-panel-wrapper {
   width: 100%;
   max-width: 640px;
-  margin-top: 16px;
+  margin: 16px auto 0;
   padding: 16px 20px;
 }
 
 .chat-panel {
   display: flex;
   gap: 10px;
+  text-align: center;
 }
 
 .chat-panel input {
@@ -333,4 +334,70 @@ body {
   margin: 3px 0;
   font-size: 0.88rem;
   color: var(--text-secondary);
+}
+
+.trip-detail-wrapper {
+  width: 100%;
+  margin-top: 40px;
+}
+
+.back-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 20px;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.saved-trip-card {
+  position: relative;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border: none;
+  color: var(--text-secondary);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.delete-btn:hover {
+  background: rgba(255, 60, 60, 0.6);
+  color: white;
+}
+
+.weather-icon {
+  font-size: 1.3rem;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.weather-icon-img {
+  width: 210px;
+  height: 60px;
+  padding-left: 75px;
+  padding-right: 75px;
+}
+
+.day-number {
+  margin: 0 0 4px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--accent);
+  font-weight: 600;
 }
