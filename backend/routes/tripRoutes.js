@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { extractTripDetails, getMissingFields } = require('../services/extractionService');
+const { extractTripDetails, getMissingFields, generateDailySuggestions } = require('../services/extractionService');
 const { getCoordinates } = require('../services/geocodingService');
 const { getWeatherForecast } = require('../services/weatherService');
 const { getAttractions } = require('../services/attractionsService');
@@ -9,6 +9,9 @@ const { saveTrip, getTrip, markTripSaved, getSavedTrips, deleteTrip } = require(
 const crypto = require('crypto'); // built into Node, no install needed
 const { interpretUpdateRequest } = require('../services/chatUpdateService');
 const { getHotels } = require('../services/hotelsService');
+const { getDateRange } = require('../dateRange');
+
+const MAX_TRIP_DAYS = 14
 
 // Temporary test route - we'll remove this later
 router.get('/test-weather', async (req, res) => {
@@ -52,116 +55,82 @@ router.get('/test-attractions', async (req, res) => {
 });
 
 router.post('/plan', async (req, res) => {
-  const { text } = req.body;
+  const { destination, startDate, endDate, budget, currency = 'EUR', travelers = 1, preferences = [] } = req.body;
 
-  if (!text || typeof text !== 'string'){
-    return res.status(400).json({ error: 'Please provide a "text" field describing your trip.'});
+  // 1. Validate the form input
+  if (typeof destination !== 'string' || !destination.trim() ){
+    return res.status(400).json({ error: 'Please enter a destination.' });
+  }
+
+  const dates = getDateRange(startDate, endDate);
+  if (dates.length === 0) {
+    return res.status(400).json({ error: 'Please choose a valid date range.' });
+  }
+  if (dates.length > MAX_TRIP_DAYS) {
+    return res.status(400).json({ error: `Trips can be at most ${MAX_TRIP_DAYS} days long. `});
+  }
+
+  const budgetNumber = Number(budget);
+  if (!Number.isFinite(budgetNumber) || budgetNumber <= 0) {
+    return res.status(400).json({ error: 'Please enter a valid budget.' });
   }
 
   try {
-    // 1. Extract structured details from the free text
-    const tripDetails = await extractTripDetails(text);
-    const missing = getMissingFields(tripDetails);
+    // 2. Geocode,This works best with just the place name, so anything after a comma is ignored
+    const coords = await getCoordinates(destination.split(',')[0].trim());
+    const placeLabel = `${coords.resolvedName}, ${coords.country}`;
 
-    if(missing.length > 0){
-      if(missing.includes("destination") == true){
-        return res.json({
-          needsClarification: true,
-          message: 'Please tell me the travel destination for your trip.'
-        });
-      }
-      if(missing.includes("dates") == true){
-        return res.json({
-          needsClarification: true,
-          message: 'Please also tell me when you plan to trip the travel.'
-        });
-      }
-      if(missing.includes("budget") == true){
-        return res.json({
-          needsClarification: true,
-          message: 'Please tell me the budget of this trip.'
-        })
-      }
+    // 3. Weather is non-critical: the free forecast only reaches about 16 days ahead
+    let forecast;
+    try {
+      forecast = await getWeatherForecast(coords.latitude, coords.longitude, startDate, endDate);
+    } catch (weatherErr) {
+      console.error('Weathe fetch failed, continuing without it:', weatherErr.response?.data || weatherErr.message);
+      forecast = dates.map(date => ({
+        date, maxTemp: null, minTemp: null, precipitationChance: null, weatherCode: null,
+      }));
     }
 
-    // 2. Geocode the destination
-    const coords = await getCoordinates(tripDetails.destination);
-
-    // 3. Get weather for the trip dates (falls back to a default 5-day window if the AI didn't extract dates)
-    const startDate = tripDetails.startDate;
-    const endDate = tripDetails.endDate; 
-    const forecast = await getWeatherForecast(coords.latitude, coords.longitude, startDate, endDate);
-    
-    // 4. Hotels are non-critical — if this fails, we still want the itinerary to succeed
+    // 4. Hotels are non-critical too
     let hotels = [];
     try {
-      hotels = await getHotels(tripDetails.destination, startDate, endDate);
+      hotels = await getHotels(destination, startDate, endDate);
     } catch (hotelErr) {
       console.error('Hotel fetch failed, continuing without hotels:', hotelErr.response?.data || hotelErr.message);
     }
 
-    // 5. Compile everything into one itinerary object
+    // 5. Build the itinerary
+    const tripDetails = {
+      destination: coords.resolvedName,
+      travelers: Number(travelers) || 1,
+      budget: budgetNumber,
+      currency,
+      preferences: Array.isArray(preferences) ? preferences : [],
+    };
     const itinerary = buildItinerary(tripDetails, forecast, hotels);
-    
-    // Merge daily attraction/restaurant suggestions (from the same extraction call) into each day, matched by position
-    if (Array.isArray(tripDetails.dailySuggestions)) {
-      itinerary.days.forEach((day, index) => {
-        const match = tripDetails.dailySuggestions.find(s => Number(s.day) === index + 1);
+
+    // 6. Suggestions are non-critical as well: if gemini fails or hits its quota, day keep empty lists
+    try {
+      const suggestions = await generateDailySuggestions(placeLabel, tripDetails.preferences, dates.length);
+      itinerary.days.forEach((day, index) => { 
+        const match = suggestions.find(s => Number(s.day) === index + 1);
         if (match) {
           day.attractions = (match.attractions || []).map(name => ({ name }));
           day.restaurants = match.restaurants || [];
         }
       });
+    } catch (suggestErr) {
+      console.error('Suggestions failed, continuing without them: ', suggestErr.message);
     }
 
-    // 6. Store it so we can patch it later via chat updates
+    // 7. Store and respond
     const tripId = crypto.randomUUID();
     await saveTrip(tripId, itinerary);
 
     res.json({ tripId, coords, itinerary });
-
-
   } catch (err) {
-    console.error('Plan error:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-router.post('/:tripId/update', async (req, res) => {
-  const { tripId } = req.params;
-  const { message } = req.body;
-
-  if (!message || typeof message !== 'string') {
-    return res.status(400).json({ error: 'Please provide a "message" field.' });
-  }
-
-  const itinerary = await getTrip(tripId);
-  if (!itinerary) {
-    return res.status(404).json({ error: 'Trip not found. Plan a trip first to get a tripId.' });
-  }
-
-  try {
-    const interpretation = await interpretUpdateRequest(message, itinerary);
-    const { targetDate, field, suggestion } = interpretation;
-
-    const day = itinerary.days.find(d => d.date === targetDate);
-    if (!day) {
-      return res.status(400).json({ error: 'Could not determine which day you meant.', interpretation });
-    }
-
-    if (field === 'restaurants') {
-      day.restaurants = [suggestion ];
-    }
-    else if (field === 'attractions') {
-      day.attractions = [suggestion];
-    } 
-
-    await saveTrip(tripId, itinerary); // persist the change back into the store
-
-    res.json({ updatedDay: day, interpretation });
-  } catch (err) {
-    console.error('Update error:', err);
-    res.status(500).json({ error: err.message });
+    console.error('Plan error:', err.response?.data || err.message);
+    res.status(500).json({ error: err.message});
   }
 });
 

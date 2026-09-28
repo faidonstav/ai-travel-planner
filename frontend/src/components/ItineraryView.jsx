@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import DayCard from './DayCard';
 import HotelsSection from './HotelsSection';
-import { saveTripPermanently } from '../api';
+import { saveTripPermanently, deleteTrip } from '../api';
 
-function ItineraryView({ itinerary, tripId }) {
+function ItineraryView({ itinerary, tripId, onDelete }) {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   
   async function handleSave() {
     setSaving(true);
@@ -19,6 +20,19 @@ function ItineraryView({ itinerary, tripId }) {
     }
   }
 
+  async function handleDelete() {
+    if (!window.confirm("Delete this saved trip? This can't be undone.")) return;
+
+    setDeleting(true);
+    try {
+      await deleteTrip(tripId);
+      onDelete();
+    } catch (err) {
+      alert(err.message);
+      setDeleting(false);
+    }
+  }
+
   return (
     <div className="itinerary glass-panel">
       <div className="itinerary-header">
@@ -28,9 +42,16 @@ function ItineraryView({ itinerary, tripId }) {
             {itinerary.travelers} traveler(s) · {itinerary.currency} {itinerary.budget} · {itinerary.preferences.join(', ') || 'No preferences specified'}
           </p>
         </div>
-        <button className="save-btn" onClick={handleSave} disabled={saving || saved}>
-          {saved ? '✓ Saved' : saving ? 'Saving...' : 'Save trip'}
-        </button>
+        
+        {onDelete ? (
+          <button className="save-btn delete-trip-btn" onClick={handleDelete} disabled={deleting}>
+            {deleting ? 'Deliting...' : 'Delete trip'}
+          </button>
+        ) : (
+          <button className="save-btn" onClick={handleSave} disabled={saving || saved}>
+            {saved ? '✓ Saved' : saving ? 'Saving...' : 'Save trip'}
+          </button>
+        )}
       </div>
 
       <HotelsSection hotels={itinerary.hotelOptions} />

@@ -1,10 +1,10 @@
 const API_BASE_URL = 'http://localhost:5000/api/trips';
 
-export async function planTrip(text) {
+export async function planTrip(tripInput) {
   const response = await fetch(`${API_BASE_URL}/plan`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify(tripInput),
   });
 
   if (!response.ok) {

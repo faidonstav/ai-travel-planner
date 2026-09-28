@@ -30,6 +30,30 @@ Respond with ONLY valid JSON, no markdown, no explanation, matching exactly this
   return JSON.parse(cleaned);
 }
 
+async function generateDailySuggestions(destination, preferences, numDays) {
+  const systemPrompt = `You suggest daily attractions and restaurants for a trip to ${destination}.
+  Traveler preferences: ${preferences.length ? preferences.join(', ') : 'none specified'}. 
+  The trip lasts ${numDays} days.
+  
+  Respond with ONLY valid JSON, no markdown, no explanation, matching exaclty this shape:
+  {
+    "dailySuggestions": [
+      { "day": number (1-indexed), "attractions": string[] (1-2 items), "restaurants": string[] (1-2 items) }
+       ]
+  }
+  Generate exactly one entry per day. Vary the suggestions across days, and don't repeat the same one twice.
+  
+  Important: since there is no live attractions/restaunrants database connected yet, generate these as realistic-sounding, destination-approproate placeholders, not claims about verified, currrently operating businesses.`;
+
+  const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash', systemInstruction: systemPrompt});
+    const result = await model.generateContent('Generate the suggestions now.');
+  const cleaned = result.response.text().replace(/```json|```/g, '').trim();
+  const parsed = JSON.parse(cleaned);
+
+  // Same defensive casing check as before: Gemini doesn't always match key casing exactly
+  return parsed.dailySuggestions || parsed.DailySuggestions || [];
+}
+
 function getMissingFields(extracted){
   const missing = [];
   if(!extracted.destination) missing.push('destination');
@@ -38,4 +62,4 @@ function getMissingFields(extracted){
   return missing;
 }
 
-module.exports = { extractTripDetails, getMissingFields };
+module.exports = { extractTripDetails, getMissingFields, generateDailySuggestions };

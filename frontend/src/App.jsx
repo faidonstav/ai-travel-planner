@@ -41,6 +41,17 @@ function App() {
     }));
   }
 
+  function handleViewedTripDeleted() {
+    // If the deleted trip is also the one open in the "Plan a trip" tab, clear it,
+    // otherwise that tab would keep showing a trip that no longer exists
+    if (viewedTrip?.tripId === tripId) {
+      setTripId(null);
+      setItinerary(null);
+    }
+    setViewedTrip(null);
+    setView('saved');
+  }
+
   return (
     <div className="app-shell">
       <div className="nav-tabs">
@@ -52,7 +63,7 @@ function App() {
         <>
           <div className="hero">
             <h1>Hey, I'm your AI trip planner</h1>
-            <p>Describe your trip in plain words — I'll sort the days, the weather, and the details.</p>
+            <p>Tell me where, when, and your budget — I'll sort the days, the weather, and the details.</p>
           </div>
 
           <TripInputForm onPlanReady={handlePlanReady} />
@@ -76,7 +87,11 @@ function App() {
       {view === 'trip-detail' && viewedTrip && (
         <div className="trip-detail-wrapper">
           <button className="back-btn" onClick={() => setView('saved')}>← Back to my trips</button>
-          <ItineraryView itinerary={viewedTrip.itinerary} tripId={viewedTrip.tripId} />
+          <ItineraryView 
+          itinerary={viewedTrip.itinerary} 
+          tripId={viewedTrip.tripId}
+          onDelete={handleViewedTripDeleted} 
+          />
           <ChatPanel tripId={viewedTrip.tripId} onDayUpdated={handleViewedTripDayUpdated} />
         </div>
       )}
