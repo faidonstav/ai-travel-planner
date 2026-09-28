@@ -129,9 +129,9 @@ body {
 }
 
 .day-list {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 300px);
+  justify-content: space-evenly;
   gap: 16px;
   margin-top: 20px;
 }
@@ -141,11 +141,11 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   padding: 16px 20px;
-  flex: 1 1 220px;
+  width: 300px;
 }
 
 .day-card h3 {
-  margin: 0 0 6px;
+  margin: 0 0 15px;
   font-size: 1rem;
 }
 
@@ -387,10 +387,13 @@ body {
 }
 
 .weather-icon-img {
-  width: 210px;
+  width: 60px;
   height: 60px;
-  padding-left: 75px;
-  padding-right: 75px;
+}
+
+.weather-icons {
+  text-align: center;
+  margin-bottom: 15px;
 }
 
 .day-number {
@@ -400,4 +403,25 @@ body {
   letter-spacing: 0.5px;
   color: var(--accent);
   font-weight: 600;
+}
+
+.section {
+  margin: 10px 0;
+}
+
+.item-list {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: 0.92rem;
+}
+
+.item-list li {
+  margin: 2px 0;
+}
+
+.coming-soon {
+  margin: 4px 0 0;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  font-style: italic;
 }
