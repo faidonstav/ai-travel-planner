@@ -42,7 +42,6 @@ function TripInputForm({ onPlanReady }) {
 
   function handleRangeSelect(newRange) {
     setRange(newRange);
-    if (newRange?.from && newRange?.to) setShowCalendar(false);
   }
 
   async function handleSubmit(e) {
@@ -94,6 +93,7 @@ function TripInputForm({ onPlanReady }) {
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
             placeholder="Where to"
+            autoComplete="off"
             required
           />
         </div>
@@ -137,6 +137,14 @@ function TripInputForm({ onPlanReady }) {
                 defaultMonth={range?.from || today}
                 numberOfMonths={1}
               />
+              <button
+                type="button"
+                className="date-popover-done"
+                onClick={() => setShowCalendar(false)}
+                disabled={!range?.from}
+              >
+                Done
+              </button>
             </div>
           )}
         </div>

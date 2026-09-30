@@ -4,13 +4,19 @@ import ItineraryView from './components/ItineraryView';
 import ChatPanel from './components/ChatPanel';
 import SavedTripsView from './components/SavedTripsView';
 import { getTripById } from './api';
-
+import WarpText from './component/WarpText';
 
 function App() {
   const [view, setView] = useState('plan');
   const [tripId, setTripId] = useState(null);
   const [itinerary, setItinerary] = useState(null);
   const [viewedTrip, setViewedTrip] = useState(null);
+
+  function goHome() {
+    setTripId(null);
+    setItinerary(null);
+    setView('plan');
+  }
 
   function handlePlanReady(result) {
     setTripId(result.tripId);
@@ -52,30 +58,45 @@ function App() {
     setView('saved');
   }
 
+  function handleitineraryUpdated(updatedItinerary) {
+    setItinerary(updatedItinerary);
+  }
+
+  function handleViewdTripItineraryUpdated(updatedItinerary) {
+    setViewedTrip(prev => ({ ...prev, itinerary: updatedItinerary}));
+  }
+
   return (
     <div className="app-shell">
       <div className="nav-tabs">
-        <button className={view === 'plan' ? 'active' : ''} onClick={() => setView('plan')}>Plan a trip</button>
+        <button className={view === 'plan' && !itinerary ? 'active' : ''} onClick={goHome}>Plan a trip</button>
+        {itinerary && (
+          <button className={view === 'plan' && itinerary ? 'active' : ''} onClick={() => setView('plan')}>
+        {itinerary.destination}
+          </button>
+        )}
         <button className={view === 'saved' ? 'active' : ''} onClick={() => setView('saved')}>My trips</button>
       </div>
 
       {view === 'plan' && (
         <>
-          <div className="hero">
+        {!itinerary ? (
+          <>
+            <div className="hero">
             <h1>Hey, I'm your AI trip planner</h1>
             <p>Tell me where, when, and your budget — I'll sort the days, the weather, and the details.</p>
-          </div>
+            </div>
 
-          <TripInputForm onPlanReady={handlePlanReady} />
-
-          {itinerary && (
-            <>
-              <ItineraryView itinerary={itinerary} tripId={tripId} />
-              <ChatPanel tripId={tripId} onDayUpdated={handleDayUpdated} />
-            </>
-          )}
+            <TripInputForm onPlanReady={handlePlanReady} />
+          </>
+        ) : (
+          <>
+              <ItineraryView itinerary={itinerary} tripId={tripId} onItineraryChange={handleitineraryUpdated}/>
+              <ChatPanel tripId={tripId} onDayUpdated={handleDayUpdated} onItineraryUpdated={handleitineraryUpdated}/>
+          </>
+         )}
         </>
-      )}
+     )}
 
       {view === 'saved' && (
         <div className="saved-trips-wrapper">
@@ -91,8 +112,9 @@ function App() {
           itinerary={viewedTrip.itinerary} 
           tripId={viewedTrip.tripId}
           onDelete={handleViewedTripDeleted} 
+          onItineraryChange={handleViewdTripItineraryUpdated}
           />
-          <ChatPanel tripId={viewedTrip.tripId} onDayUpdated={handleViewedTripDayUpdated} />
+          <ChatPanel tripId={viewedTrip.tripId} onDayUpdated={handleViewedTripDayUpdated} onItineraryUpdated={handleViewdTripItineraryUpdated}/>
         </div>
       )}
     </div>

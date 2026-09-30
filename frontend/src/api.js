@@ -59,3 +59,18 @@ export async function deleteTrip(tripId) {
   }
   return response.json();
 }
+
+export async function updateItinerary(tripId, itinerary) {
+  const response = await fetch(`${API_BASE_URL}/${tripId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ itinerary }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `Request failed with status ${response.status}`);
+  }
+
+  return response.json();
+}

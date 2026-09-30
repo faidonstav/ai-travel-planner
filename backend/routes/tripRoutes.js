@@ -10,6 +10,7 @@ const crypto = require('crypto'); // built into Node, no install needed
 const { interpretUpdateRequest } = require('../services/chatUpdateService');
 const { getHotels } = require('../services/hotelsService');
 const { getDateRange } = require('../dateRange');
+const { error } = require('console');
 
 const MAX_TRIP_DAYS = 14
 
@@ -134,6 +135,72 @@ router.post('/plan', async (req, res) => {
   }
 });
 
+router.post('/:tripId/update', async (req, res) => {
+  const { tripId } = req.params;
+  const { message } = req.body;
+
+  if (!message || typeof message !== 'string') {
+    return res.status(400).json({ error: 'Please provide a "message" field.'});
+  }
+
+  const itinerary = await getTrip(tripId);
+  if (!itinerary) {
+    return res.status(400).json({ error: 'Trip not found. Plan a trip first.'});
+  }
+    try {
+    const interpretation = await interpretUpdateRequest(message, itinerary);
+    const { targetDate, field, suggestion } = interpretation;
+
+    // Preferences apply to the whole trip, not a single day
+    if (field === 'preferences') {
+      const newPrefs = (suggestion || '')
+        .split(',')
+        .map(p => p.trim())
+        .filter(Boolean);
+
+      itinerary.preferences = [...new Set([...(itinerary.preferences || []), ...newPrefs])];
+
+      // Regenerate attractions/restaurants for every day using the updated preferences.
+      // This is a second Gemini call, on top of the interpretation call above.
+      try {
+        const suggestions = await generateDailySuggestions(itinerary.destination, itinerary.preferences, itinerary.days.length);
+        itinerary.days.forEach((day, index) => {
+          const match = suggestions.find(s => Number(s.day) === index + 1);
+          if (match) {
+            day.attractions = (match.attractions || []).map(name => ({ name }));
+            day.restaurants = match.restaurants || [];
+          }
+        });
+      } catch (suggestErr) {
+        console.error('Regenerating suggestions after preference update failed:', suggestErr.message);
+      }
+
+      await saveTrip(tripId, itinerary);
+      return res.json({ updatedItinerary: itinerary, interpretation });
+    }
+
+    // Every other field targets one specific day
+    const day = itinerary.days.find(d => d.date === targetDate);
+    if (!day) {
+      return res.status(400).json({ error: 'Could not determine which day you meant.', interpretation });
+    }
+
+    if (field === 'restaurants') {
+      day.restaurants = [suggestion];
+    } else if (field === 'attractions') {
+      day.attractions = [{ name: suggestion }];
+    } else if (field === 'hotel') {
+      day.hotel = { name: suggestion };
+    }
+
+    await saveTrip(tripId, itinerary);
+    res.json({ updatedDay: day, interpretation });
+  } catch (err) {
+    console.error('Update error:', err.response?.data || err.message);
+    res.status(500).json({ error: err.response?.data || err.message });
+  }
+});
+
 router.get('/test-hotels', async (req, res) => {
   try {
     const { destination, checkIn, checkOut } = req.query;
@@ -196,5 +263,22 @@ router.delete('/:tripId', async (req,res) => {
     res.status(500).json({ error: err.message});
   }
 })
+
+router.put('/:tripId', async (req, res) => {
+  const { tripId } = req.params;
+  const { itinerary } = req.body;
+
+  if (!itinerary || typeof itinerary !== 'object') {
+    return res.status(400).json({ error: 'Please provide an "itinerary" object.' });
+  }
+
+  try {
+    await saveTrip(tripId, itinerary);
+    res.json({ tripId, itinerary });
+  } catch (err) {
+    console.error('Update itinerary error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 module.exports = router;

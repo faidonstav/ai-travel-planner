@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { updateTrip } from '../api';
 
-function ChatPanel({ tripId, onDayUpdated }) {
+function ChatPanel({ tripId, onDayUpdated, onItineraryUpdated }) {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -12,7 +12,11 @@ function ChatPanel({ tripId, onDayUpdated }) {
     setError(null);
     try {
       const result = await updateTrip(tripId, message);
-      onDayUpdated(result.updatedDay);
+      if (result.updatedItinerary) {
+        onItineraryUpdated(result.updatedItinerary);
+      } else if (result.updatedDay) {
+        onDayUpdated(result.updatedDay);
+      }
       setMessage('');
     } catch (err) {
       setError(err.message);
@@ -29,7 +33,7 @@ function ChatPanel({ tripId, onDayUpdated }) {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="e.g. Find me the best restaurant for day 3"
+          placeholder="e.g. I love seafood — update my suggestions"
         />
         <button onClick={handleSend} disabled={loading}>
           {loading ? '···' : 'Send'}
