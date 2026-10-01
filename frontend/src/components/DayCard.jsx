@@ -3,7 +3,8 @@ import { createPortal } from 'react-dom';
 import { getWeatherIcons } from '../utils/WeatherIcons';
 import { getOrdinal } from '../utils/ordinal';
 import { formatDate } from '../utils/formatDate';
-
+import {calculateDayCosts, formatMoney } from '../utils/dayCosts';
+ 
 function DraggableItem({ id, index, onDelete, children }) {
   return (
     <Draggable draggableId={id} index={index}>
@@ -38,7 +39,8 @@ function DraggableItem({ id, index, onDelete, children }) {
   );
 }
 
-function DayCard({ day, dayNumber, onDeleteItem }) {
+function DayCard({ day, dayNumber, travelers, currency, isLastDay, hotelOptions, onDeleteItem }) {
+  const costs = calculateDayCosts(day, travelers, currency, isLastDay, hotelOptions);
   return (
     <div className="day-card">
       <p className="day-number">{getOrdinal(dayNumber)} day</p>
@@ -65,7 +67,7 @@ function DayCard({ day, dayNumber, onDeleteItem }) {
                 index={index}
                 onDelete={() => onDeleteItem(day.date, 'attractions', index)}
                 >
-                  {a.name}
+                  {a.name} {a.pricePerPerson >0 ? `${a.pricePerPerson}` : 'Free'}
                 </DraggableItem>
               ))}
               {provided.placeholder}
@@ -89,13 +91,33 @@ function DayCard({ day, dayNumber, onDeleteItem }) {
                 index={index}
                 onDelete={() => onDeleteItem(day.date, 'restaurants', index)}
                 >
-                  {r}
+                {r.name} {r.pricePerPerson}
                 </DraggableItem>
               ))}
               {provided.placeholder}
             </ul>
           )}
         </Droppable>
+      </div>
+
+      <div className="section expenses">
+        <span className="label">Estimated expenses ({travelers} traveler{travelers > 1 ? 's' : ''})</span>
+        <ul className="expense-list">
+          <li><span>Attractions</span><span>{formatMoney(costs.attractions, currency)}</span></li>
+          <li><span>Restaurants (avg of options)</span><span>{formatMoney(costs.restaurants, currency)}</span></li>
+          <li><span>Transport</span><span>{formatMoney(costs.transport, currency)}</span></li>
+          <li>
+            <span>Hotel (avg. of {costs.hotelsUsed})</span>
+            <span>
+              {isLastDay ? '—'
+                : costs.hotelsUsed > 0 ? formatMoney(costs.hotel, currency)
+                : 'n/a'}
+            </span>
+          </li>
+        </ul>
+        <p className="expense-total">
+          <span>Total</span><span>{formatMoney(costs.total, currency)}</span>
+        </p>
       </div>
     </div>
   );

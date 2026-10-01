@@ -4,7 +4,7 @@ const { extractTripDetails, getMissingFields, generateDailySuggestions } = requi
 const { getCoordinates } = require('../services/geocodingService');
 const { getWeatherForecast } = require('../services/weatherService');
 const { getAttractions } = require('../services/attractionsService');
-const { buildItinerary } = require('../services/itineraryService');
+const { buildItinerary, applySuggestions } = require('../services/itineraryService');
 const { saveTrip, getTrip, markTripSaved, getSavedTrips, deleteTrip } = require('../services/tripStore');
 const crypto = require('crypto'); // built into Node, no install needed
 const { interpretUpdateRequest } = require('../services/chatUpdateService');
@@ -112,14 +112,8 @@ router.post('/plan', async (req, res) => {
 
     // 6. Suggestions are non-critical as well: if gemini fails or hits its quota, day keep empty lists
     try {
-      const suggestions = await generateDailySuggestions(placeLabel, tripDetails.preferences, dates.length);
-      itinerary.days.forEach((day, index) => { 
-        const match = suggestions.find(s => Number(s.day) === index + 1);
-        if (match) {
-          day.attractions = (match.attractions || []).map(name => ({ name }));
-          day.restaurants = match.restaurants || [];
-        }
-      });
+      const suggestions = await generateDailySuggestions(placeLabel, tripDetails.preferences, dates.length, currency);
+      applySuggestions(itinerary, suggestions);
     } catch (suggestErr) {
       console.error('Suggestions failed, continuing without them: ', suggestErr.message);
     }
@@ -163,14 +157,8 @@ router.post('/:tripId/update', async (req, res) => {
       // Regenerate attractions/restaurants for every day using the updated preferences.
       // This is a second Gemini call, on top of the interpretation call above.
       try {
-        const suggestions = await generateDailySuggestions(itinerary.destination, itinerary.preferences, itinerary.days.length);
-        itinerary.days.forEach((day, index) => {
-          const match = suggestions.find(s => Number(s.day) === index + 1);
-          if (match) {
-            day.attractions = (match.attractions || []).map(name => ({ name }));
-            day.restaurants = match.restaurants || [];
-          }
-        });
+        const suggestions = await generateDailySuggestions(itinerary.destination, itinerary.preferences, itinerary.days.length, itinerary.currency);
+        applySuggestions(itinerary, suggestions);
       } catch (suggestErr) {
         console.error('Regenerating suggestions after preference update failed:', suggestErr.message);
       }

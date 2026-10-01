@@ -1,9 +1,12 @@
 :root {
-  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-bg: #6F1119;
   --glass-border: rgba(255, 255, 255, 0.18);
-  --text-primary: #F5F1EA;
-  --text-secondary: rgba(245, 241, 234, 0.75);
-  --accent: #E8834B;
+  --text-primary: #6F1119;
+  --text-secondary: #6F1119;
+  --accent: #6F1119;
+
+  --cream: #fff8df;
+  --deep-berry: #6F1119;
 }
 
 * {
@@ -18,9 +21,7 @@ body {
 
 .app-shell {
   min-height: 100vh;
-  background:
-    linear-gradient(180deg, rgba(10, 8, 15, 0.35) 0%, rgba(10, 8, 15, 0.6) 100%),
-    url('/background.jpg') center / cover fixed no-repeat;
+  background-color: var(--cream);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -28,7 +29,7 @@ body {
 }
 
 .glass-panel {
-  background: var(--glass-bg);
+  background: var(--cream);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
@@ -86,7 +87,7 @@ body {
   border-radius: 50%;
   border: none;
   background: var(--accent);
-  color: white;
+  color: var(--cream);
   font-size: 1.1rem;
   cursor: pointer;
   flex-shrink: 0;
@@ -121,6 +122,7 @@ body {
 
 .itinerary h2 {
   margin: 0 0 6px;
+  color: --var(--text-secondary);
 }
 
 .itinerary-meta {
@@ -138,11 +140,12 @@ body {
 }
 
 .day-card {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--cream);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   padding: 16px 20px;
   width: 300px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
 .day-card h3 {
@@ -163,9 +166,10 @@ body {
 .hotels-section {
   margin-top: 24px;
   padding: 20px 24px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--cream);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
 .hotels-section h3 {
@@ -181,18 +185,19 @@ body {
 }
 
 .hotel-card {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--deep-berry);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   overflow: hidden;
   text-decoration: none;
-  color: var(--text-primary);
-  transition: transform 0.15s ease, background 0.15s ease;
+  color: var(--cream);
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
 
 .hotel-card:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--cream);
+  color: var(--text-primary);
 }
 
 .hotel-card-body {
@@ -208,7 +213,13 @@ body {
 .hotel-card-body p {
   margin: 3px 0;
   font-size: 0.82rem;
-  color: var(--text-secondary);
+  color: inherit;
+}
+
+.hotel-card-body:hover {
+  margin: 3px 0;
+  font-size: 0.82rem;
+  color: var(--text-primary);
 }
 
 .hotel-platform {
@@ -230,7 +241,7 @@ body {
 
 .chat-panel input {
   flex: 1;
-  background: transparent;
+  background: var(--cream);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 999px;
   padding: 10px 18px;
@@ -248,7 +259,7 @@ body {
   border: none;
   padding: 10px 20px;
   background: var(--accent);
-  color: white;
+  color: var(--cream);
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -272,12 +283,19 @@ body {
   border-radius: 999px;
   cursor: pointer;
   font-family: inherit;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+.nav-tabs button:hover {
+  background: rgba(111, 17, 25, 0.08);
+}
 .nav-tabs button.active {
   background: var(--accent);
-  color: white;
-  border-color: transparent;
+  color: var(--cream);
+  border-color: var(--accent);
 }
 
 .itinerary-header {
@@ -292,7 +310,7 @@ body {
   border: none;
   padding: 8px 18px;
   background: var(--accent);
-  color: white;
+  color: var(--cream);
   cursor: pointer;
   flex-shrink: 0;
   white-space: nowrap;
@@ -377,8 +395,8 @@ body {
 }
 
 .delete-btn:hover {
-  background: rgba(255, 60, 60, 0.6);
-  color: white;
+  background: var(--accent);
+  color: var(--cream);
 }
 
 .weather-icon {
@@ -417,7 +435,30 @@ body {
 }
 
 .item-list li {
-  margin: 2px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 6px 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--deep-berry);
+  color: var(--cream);
+  cursor: grab;
+  user-select: none;
+  border: 1px solid var(--deep-berry);
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.item-list li:active {
+  cursor: grabbing;
+}
+
+.item-list li.dragging {
+  background: var(--cream);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-strong);
+  z-index: 9999;
 }
 
 .coming-soon {
@@ -427,12 +468,21 @@ body {
   font-style: italic;
 }
 
+.item-list li.coming-soon {
+  list-style: none;
+  cursor: default;
+  padding: 0;
+}
+
 .delete-trip-btn {
-  background: rgb(255, 70, 70, 0.75);
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
 }
 
 .delete-trip-btn:hover:not(:disabled) {
-  background: rgb(255 70 70 / 0.95);
+  background: var(--accent);
+  color: var(--cream);
 }
 
 .search-wrapper {
@@ -464,7 +514,7 @@ body {
 .field-label {
   font-size: 1rem;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   padding-top: 2px;
 }
 
@@ -499,7 +549,7 @@ body {
   padding: 0 32px;
   margin-left: 8px;
   background: var(--accent);
-  color: white;
+  color: var(--cream);
   font-family: inherit;
   font-size: 1rem;
   font-weight: 600;
@@ -517,7 +567,7 @@ body {
   left: 0;
   z-index: 20;
   padding: 12px;
-  background: rgba(24, 17, 22, 0.96);
+  background: #fff8df;
   border: 1px solid var(--glass-border);
   border-radius: 16px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
@@ -561,6 +611,7 @@ body {
   display:flex;
   flex-direction: row;
   gap: 5px;
+  color: var(--text-secondary);
 }
 
 .search-field input[type="number"]::-webkit-outer-spin-button,
@@ -577,7 +628,7 @@ body {
   border: none;
   border-radius: 10px;
   background: var(--accent);
-  color: white;
+  color: var(--cream);
   font-family: inherit;
   font-size: 0.95rem;
   font-weight: 600;
@@ -587,6 +638,20 @@ body {
 .date-popover-done:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.item-delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.7rem;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 4px;
+  opacity: 0;
+  flex-shrink: 0;
+  transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
 }
 
 .nav-tabs button {
@@ -663,4 +728,120 @@ body {
 .item-delete-btn:hover {
   color: white;
   background: rgba(255, 60, 60, 0.6);
+}
+
+.expenses {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.expense-list {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+.expense-list li,
+.expense-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 3px 0;
+}
+
+.expense-total {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.cost-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+  padding: 20px 24px;
+  background: var(--cream);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+.cost-summary h3 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.cost-summary-budget {
+  padding-left: 24px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.budget-figures {
+  margin: 0 0 12px;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.budget-figures span {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.budget-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(111, 17, 25, 0.15);
+  overflow: hidden;
+}
+
+.budget-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.budget-bar-fill.under, .budget-status.under { background: #4caf7d; }
+.budget-bar-fill.near,  .budget-status.near  { background: #e0b04a; }
+.budget-bar-fill.over,  .budget-status.over  { background: #e5534b; }
+
+.budget-status {
+  display: inline-block;
+  margin: 14px 0 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a1410;
+}
+
+.budget-remaining {
+  margin: 4px 0;
+  font-size: 0.92rem;
+}
+
+.budget-note {
+  margin: 10px 0 0;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 720px) {
+  .cost-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .cost-summary-budget {
+    padding-left: 0;
+    border-left: none;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
 }

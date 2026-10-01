@@ -3,6 +3,7 @@ import { DragDropContext } from '@hello-pangea/dnd';
 import DayCard from './DayCard';
 import HotelsSection from './HotelsSection';
 import { saveTripPermanently, deleteTrip, updateItinerary } from '../api';
+import TripCostSummary from './TripCostSummary';
 
 function ItineraryView({ itinerary, tripId, onDelete, onItineraryChange }) {
   const [saved, setSaved] = useState(false);
@@ -107,10 +108,20 @@ function ItineraryView({ itinerary, tripId, onDelete, onItineraryChange }) {
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="day-list">
           {itinerary.days.map((day, index) => (
-            <DayCard key={day.date} day={day} dayNumber={index + 1} onDeleteItem={handleDeleteItem} />
+            <DayCard 
+            key={day.date} 
+            day={day} 
+            dayNumber={index + 1} 
+            travelers={itinerary.travelers}
+            currency={itinerary.currency}
+            isLastDay={index === itinerary.days.length - 1}
+            hotelOptions={itinerary.hotelOptions}
+            onDeleteItem={handleDeleteItem} 
+            />
           ))}
         </div>
       </DragDropContext>
+      <TripCostSummary itinerary={itinerary} />
     </div>
   );
 }

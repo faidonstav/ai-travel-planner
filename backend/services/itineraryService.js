@@ -27,4 +27,16 @@ function buildItinerary(tripDetails, weatherForecast, hotels = []) {
   };
 }
 
-module.exports = { buildItinerary };
+function applySuggestions(itinerary, suggestions) {
+  const clean = item => ({ name: item.name, pricePerPerson: Number(item.pricePerPerson) || 0 });
+  itinerary.days.forEach((day, index) => {
+    const match = suggestions.find(s => Number(s.day) === index + 1);
+    if (match) {
+      day.attractions = (match.attractions || []).map(clean);
+      day.restaurants = (match.restaurants || []).map(clean);
+      day.localTransportPerPerson = Number(match.localTransportPerPerson) || 0;
+    }
+  });
+}
+
+module.exports = { buildItinerary, applySuggestions};
