@@ -65,7 +65,7 @@ function DayCard({ day, dayNumber, onDeleteItem }) {
                 index={index}
                 onDelete={() => onDeleteItem(day.date, 'attractions', index)}
                 >
-                  {a.name}
+                  {a.name} {a.pricePerPerson}
                 </DraggableItem>
               ))}
               {provided.placeholder}
@@ -89,7 +89,7 @@ function DayCard({ day, dayNumber, onDeleteItem }) {
                 index={index}
                 onDelete={() => onDeleteItem(day.date, 'restaurants', index)}
                 >
-                  {r}
+                {r.name} {r.pricePerPerson}
                 </DraggableItem>
               ))}
               {provided.placeholder}

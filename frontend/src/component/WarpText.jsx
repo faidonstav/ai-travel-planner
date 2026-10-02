@@ -1,3 +1,5 @@
+
+
 'use client';
 
 import { useEffect, useRef } from 'react';
@@ -528,3 +530,4 @@ const WarpText = ({
 };
 
 export default WarpText;
+

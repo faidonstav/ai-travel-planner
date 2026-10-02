@@ -30,26 +30,33 @@ Respond with ONLY valid JSON, no markdown, no explanation, matching exactly this
   return JSON.parse(cleaned);
 }
 
-async function generateDailySuggestions(destination, preferences, numDays) {
+async function generateDailySuggestions(destination, preferences, numDays, currency) {
   const systemPrompt = `You suggest daily attractions and restaurants for a trip to ${destination}.
-  Traveler preferences: ${preferences.length ? preferences.join(', ') : 'none specified'}. 
-  The trip lasts ${numDays} days.
-  
-  Respond with ONLY valid JSON, no markdown, no explanation, matching exaclty this shape:
-  {
-    "dailySuggestions": [
-      { "day": number (1-indexed), "attractions": string[] (1-2 items), "restaurants": string[] (1-2 items) }
-       ]
-  }
-  Generate exactly one entry per day. Vary the suggestions across days, and don't repeat the same one twice.
-  
-  Important: since there is no live attractions/restaunrants database connected yet, generate these as realistic-sounding, destination-approproate placeholders, not claims about verified, currrently operating businesses.`;
+Traveler preferences: ${preferences.length ? preferences.join(', ') : 'none specified'}.
+The trip lasts ${numDays} days. All prices must be in ${currency}.
+
+Respond with ONLY valid JSON, no markdown, no explanation, matching exactly this shape:
+{
+  "dailySuggestions": [
+    {
+      "day": number (1-indexed),
+      "attractions": [ { "name": string, "pricePerPerson": number } ] (1-2 items),
+      "restaurants": [ { "name": string, "pricePerPerson": number } ] (1-2 items),
+      "localTransportPerPerson": number
+    }
+  ]
+}
+Rules:
+- Suggest real, well-known places in the destination where possible.
+- "pricePerPerson" is your best ESTIMATE of the typical cost for one adult: the entry fee for attractions (0 if free), an average meal (food and a drink) for restaurants.
+- "localTransportPerPerson" is the estimated cost of getting around locally for that day.
+- Use plain numbers only, no currency symbols. Generate exactly one entry per day and vary the suggestions.`;
 
   const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash', systemInstruction: systemPrompt});
-    const result = await model.generateContent('Generate the suggestions now.');
+  const result = await model.generateContent('Generate the suggestions now.');
   const cleaned = result.response.text().replace(/```json|```/g, '').trim();
   const parsed = JSON.parse(cleaned);
-
+  console.log(result.response.text());
   // Same defensive casing check as before: Gemini doesn't always match key casing exactly
   return parsed.dailySuggestions || parsed.DailySuggestions || [];
 }

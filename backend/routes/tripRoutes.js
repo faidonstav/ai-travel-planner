@@ -112,13 +112,16 @@ router.post('/plan', async (req, res) => {
 
     // 6. Suggestions are non-critical as well: if gemini fails or hits its quota, day keep empty lists
     try {
-      const suggestions = await generateDailySuggestions(placeLabel, tripDetails.preferences, dates.length);
+      const suggestions = await generateDailySuggestions(placeLabel, tripDetails.preferences, dates.length, currency);
       itinerary.days.forEach((day, index) => { 
         const match = suggestions.find(s => Number(s.day) === index + 1);
         if (match) {
-          day.attractions = (match.attractions || []).map(name => ({ name }));
-          day.restaurants = match.restaurants || [];
+          const clean = item => ({ name: item.name, pricePerPerson: Number(item.pricePerPerson) || 0 });
+          day.attractions = (match.attractions || []).map(clean);
+          day.restaurants = (match.restaurants || []).map(clean);
+          day.localTransportPerPerson = Number(match.localTransportPerPerson) || 0;
         }
+        console.log(itinerary.days);
       });
     } catch (suggestErr) {
       console.error('Suggestions failed, continuing without them: ', suggestErr.message);
