@@ -5,7 +5,7 @@ import { getOrdinal } from '../utils/ordinal';
 import { formatDate } from '../utils/formatDate';
 import {calculateDayCosts, formatMoney } from '../utils/dayCosts';
  
-function DraggableItem({ id, index, onDelete, children }) {
+function DraggableItem({ id, index, onDelete, name, price }) {
   return (
     <Draggable draggableId={id} index={index}>
       {(provided, snapshot) => {
@@ -16,7 +16,8 @@ function DraggableItem({ id, index, onDelete, children }) {
             {...provided.dragHandleProps}
             className={snapshot.isDragging ? 'dragging' : ''}
           >
-            <span className="item-text">{children}</span>
+            <span className="item-name">{name}</span>
+            {price && <span className="item-price">{price}</span>}
             <button
               type="button"
               className="item-delete-btn"
@@ -41,6 +42,7 @@ function DraggableItem({ id, index, onDelete, children }) {
 
 function DayCard({ day, dayNumber, travelers, currency, isLastDay, hotelOptions, onDeleteItem }) {
   const costs = calculateDayCosts(day, travelers, currency, isLastDay, hotelOptions);
+  const formatPrice = (p) => (Number(p) > 0 ? `${p}€` : null);
   return (
     <div className="day-card">
       <div className="day-header">
@@ -51,12 +53,20 @@ function DayCard({ day, dayNumber, travelers, currency, isLastDay, hotelOptions,
       <div className= "weather-section">
         <img src={getWeatherIcons(day.weather.weatherCode)} alt="weather icon" className="weather-icon-img" />
         <div className="weather-details">
+<<<<<<< HEAD
           <h4><span className="label"></span> {day.weather.minTemp}°C - {day.weather.maxTemp}°C</h4>
+=======
+          <h4> <span className="label"></span>{day.weather.minTemp}°C - {day.weather.maxTemp}°C</h4>
+>>>>>>> 2ec5969b80754287a143927c7d316b14a22f354e
           <p><span className="label"></span> {day.weather.precipitationChance}% rain</p>
         </div>
       </div>
 
+<<<<<<< HEAD
       
+=======
+
+>>>>>>> 2ec5969b80754287a143927c7d316b14a22f354e
       <div className="section">
         <h3 className="section-label">Attractions</h3>
         <Droppable droppableId={`attractions|${day.date}`}>
@@ -70,9 +80,10 @@ function DayCard({ day, dayNumber, travelers, currency, isLastDay, hotelOptions,
                 key={`attractions|${day.date}|${index}`} 
                 id={`attractions|${day.date}|${index}`} 
                 index={index}
+                name={a.name}
+                price={formatPrice(a.pricePerPerson) ?? "Free"}
                 onDelete={() => onDeleteItem(day.date, 'attractions', index)}
                 >
-                  {a.name} {a.pricePerPerson >0 ? `${a.pricePerPerson}` : 'Free'}
                 </DraggableItem>
               ))}
               {provided.placeholder}
@@ -94,9 +105,14 @@ function DayCard({ day, dayNumber, travelers, currency, isLastDay, hotelOptions,
                 key={`restaurants|${day.date}|${index}`} 
                 id={`restaurants|${day.date}|${index}`} 
                 index={index}
+                name={r.name}
+                price={formatPrice(r.pricePerPerson)}
                 onDelete={() => onDeleteItem(day.date, 'restaurants', index)}
                 >
+<<<<<<< HEAD
               {r.name} {r.pricePerPerson}
+=======
+>>>>>>> 2ec5969b80754287a143927c7d316b14a22f354e
                 </DraggableItem>
               ))}
               {provided.placeholder}
