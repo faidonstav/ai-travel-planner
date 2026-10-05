@@ -3,7 +3,8 @@ import { createPortal } from 'react-dom';
 import { getWeatherIcons } from '../utils/WeatherIcons';
 import { getOrdinal } from '../utils/ordinal';
 import { formatDate } from '../utils/formatDate';
-
+import {calculateDayCosts, formatMoney } from '../utils/dayCosts';
+ 
 function DraggableItem({ id, index, onDelete, children }) {
   return (
     <Draggable draggableId={id} index={index}>
@@ -38,20 +39,26 @@ function DraggableItem({ id, index, onDelete, children }) {
   );
 }
 
-function DayCard({ day, dayNumber, onDeleteItem }) {
+function DayCard({ day, dayNumber, travelers, currency, isLastDay, hotelOptions, onDeleteItem }) {
+  const costs = calculateDayCosts(day, travelers, currency, isLastDay, hotelOptions);
   return (
     <div className="day-card">
-      <p className="day-number">{getOrdinal(dayNumber)} day</p>
-      <div className= "weather-icons">
-        <h3>{formatDate(day.date)}</h3>
-        <img src={getWeatherIcons(day.weather.weatherCode)} alt="weather icon" className="weather-icon-img" />
+      <div className="day-header">
+        <h2 className="day-title">{getOrdinal(dayNumber)} Day</h2>
+        <p className="day-date">{formatDate(day.date)}</p>
       </div>
-      <p><span className="label">Min Temperature:</span> {day.weather.minTemp}°C</p>
-      <p><span className="label">Max Temperature:</span> {day.weather.maxTemp}°C</p>
-      <p><span className="label">Rain propability:</span> {day.weather.precipitationChance}% rain</p>
+      <h3 className="section-label">Weather</h3>
+      <div className= "weather-section">
+        <img src={getWeatherIcons(day.weather.weatherCode)} alt="weather icon" className="weather-icon-img" />
+        <div className="weather-details">
+          <h4><span className="label"></span> {day.weather.minTemp}°C - {day.weather.maxTemp}°C</h4>
+          <p><span className="label"></span> {day.weather.precipitationChance}% rain</p>
+        </div>
+      </div>
+
       
       <div className="section">
-        <span className="label">Attractions</span>
+        <h3 className="section-label">Attractions</h3>
         <Droppable droppableId={`attractions|${day.date}`}>
           {(provided, snapshot) => (
             <ul className="item-list" ref={provided.innerRef} {...provided.droppableProps}>
@@ -65,7 +72,7 @@ function DayCard({ day, dayNumber, onDeleteItem }) {
                 index={index}
                 onDelete={() => onDeleteItem(day.date, 'attractions', index)}
                 >
-                  {a.name} {a.pricePerPerson}
+                  {a.name} {a.pricePerPerson >0 ? `${a.pricePerPerson}` : 'Free'}
                 </DraggableItem>
               ))}
               {provided.placeholder}
@@ -75,7 +82,7 @@ function DayCard({ day, dayNumber, onDeleteItem }) {
       </div>
 
       <div className="section">
-        <span className="label">Restaurants</span>
+        <h3 className="section-label">Restaurants</h3>
         <Droppable droppableId={`restaurants|${day.date}`}>
           {(provided, snapshot) => (
             <ul className="item-list" ref={provided.innerRef} {...provided.droppableProps}>
@@ -89,13 +96,33 @@ function DayCard({ day, dayNumber, onDeleteItem }) {
                 index={index}
                 onDelete={() => onDeleteItem(day.date, 'restaurants', index)}
                 >
-                {r.name} {r.pricePerPerson}
+              {r.name} {r.pricePerPerson}
                 </DraggableItem>
               ))}
               {provided.placeholder}
             </ul>
           )}
         </Droppable>
+      </div>
+
+      <div className="section expenses">
+        <h3 className="section-label">Estimated expenses</h3>
+        <ul className="expense-list">
+          <li><span>Attractions</span><span>{formatMoney(costs.attractions, currency)}</span></li>
+          <li><span>Restaurants (avg of options)</span><span>{formatMoney(costs.restaurants, currency)}</span></li>
+          <li><span>Transport</span><span>{formatMoney(costs.transport, currency)}</span></li>
+          <li>
+            <span>Hotel (avg. of {costs.hotelsUsed})</span>
+            <span>
+              {isLastDay ? '—'
+                : costs.hotelsUsed > 0 ? formatMoney(costs.hotel, currency)
+                : 'n/a'}
+            </span>
+          </li>
+        </ul>
+        <p className="expense-total">
+          <span>Total</span><span>{formatMoney(costs.total, currency)}</span>
+        </p>
       </div>
     </div>
   );
