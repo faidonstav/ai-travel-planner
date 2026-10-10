@@ -1,59 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const { extractTripDetails, getMissingFields, generateDailySuggestions } = require('../services/extractionService');
+const { generateDailySuggestions } = require('../services/extractionService');
 const { getCoordinates } = require('../services/geocodingService');
 const { getWeatherForecast } = require('../services/weatherService');
-const { getAttractions } = require('../services/attractionsService');
 const { buildItinerary, applySuggestions } = require('../services/itineraryService');
 const { saveTrip, getTrip, markTripSaved, getSavedTrips, deleteTrip } = require('../services/tripStore');
 const crypto = require('crypto'); // built into Node, no install needed
-const { interpretUpdateRequest } = require('../services/chatUpdateService');
+const { applyChatUpdate } = require('../services/chatUpdateService');
 const { getHotels } = require('../services/hotelsService');
 const { getDateRange } = require('../dateRange');
-const { error } = require('console');
 
 const MAX_TRIP_DAYS = 14
 
-// Temporary test route - we'll remove this later
-router.get('/test-weather', async (req, res) => {
-  try {
-    const { destination, startDate, endDate } = req.query;
-    const coords = await getCoordinates(destination);
-    const forecast = await getWeatherForecast(coords.latitude, coords.longitude, startDate, endDate);
-    res.json({ coords, forecast });
-  } catch (err) {
-    console.error('Weather test error:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-router.post('/extract', async (req, res) => {
-  const { text } = req.body;
-
-  if (!text || typeof text !== 'string') {
-    return res.status(400).json({ error: 'Please provide a "text" field describing your trip.' });
-  }
-
-  try {
-    const tripDetails = await extractTripDetails(text);
-    res.json(tripDetails);
-  } catch (err) {
-    console.error('Extraction error:', err);
-    res.status(500).json({ error: 'Failed to extract trip details.' });
-  }
-});
-
-router.get('/test-attractions', async (req, res) => {
-  try {
-    const { destination } = req.query;
-    const coords = await getCoordinates(destination);
-    const attractions = await getAttractions(coords.latitude, coords.longitude);
-    res.json({ coords, attractions });
-  } catch (err) {
-    console.error('Attractions test error:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
 
 router.post('/plan', async (req, res) => {
   const { destination, startDate, endDate, budget, currency = 'EUR', travelers = 1, preferences = [] } = req.body;
@@ -86,7 +44,7 @@ router.post('/plan', async (req, res) => {
     try {
       forecast = await getWeatherForecast(coords.latitude, coords.longitude, startDate, endDate);
     } catch (weatherErr) {
-      console.error('Weathe fetch failed, continuing without it:', weatherErr.response?.data || weatherErr.message);
+      console.error('Weather fetch failed, continuing without it:', weatherErr.response?.data || weatherErr.message);
       forecast = dates.map(date => ({
         date, maxTemp: null, minTemp: null, precipitationChance: null, weatherCode: null,
       }));
@@ -121,7 +79,8 @@ router.post('/plan', async (req, res) => {
     // 7. Store and respond
     const tripId = crypto.randomUUID();
     await saveTrip(tripId, itinerary);
-
+    
+    // 8. Return the trip ID, coordinates, and itinerary to the client
     res.json({ tripId, coords, itinerary });
   } catch (err) {
     console.error('Plan error:', err.response?.data || err.message);
@@ -139,63 +98,14 @@ router.post('/:tripId/update', async (req, res) => {
 
   const itinerary = await getTrip(tripId);
   if (!itinerary) {
-    return res.status(400).json({ error: 'Trip not found. Plan a trip first.'});
+    return res.status(404).json({ error: 'Trip not found. Plan a trip first.'});
   }
     try {
-    const interpretation = await interpretUpdateRequest(message, itinerary);
-    const { targetDate, field, suggestion } = interpretation;
-
-    // Preferences apply to the whole trip, not a single day
-    if (field === 'preferences') {
-      const newPrefs = (suggestion || '')
-        .split(',')
-        .map(p => p.trim())
-        .filter(Boolean);
-
-      itinerary.preferences = [...new Set([...(itinerary.preferences || []), ...newPrefs])];
-
-      // Regenerate attractions/restaurants for every day using the updated preferences.
-      // This is a second Gemini call, on top of the interpretation call above.
-      try {
-        const suggestions = await generateDailySuggestions(itinerary.destination, itinerary.preferences, itinerary.days.length, itinerary.currency);
-        applySuggestions(itinerary, suggestions);
-      } catch (suggestErr) {
-        console.error('Regenerating suggestions after preference update failed:', suggestErr.message);
-      }
-
-      await saveTrip(tripId, itinerary);
-      return res.json({ updatedItinerary: itinerary, interpretation });
-    }
-
-    // Every other field targets one specific day
-    const day = itinerary.days.find(d => d.date === targetDate);
-    if (!day) {
-      return res.status(400).json({ error: 'Could not determine which day you meant.', interpretation });
-    }
-
-    if (field === 'restaurants') {
-      day.restaurants = [suggestion];
-    } else if (field === 'attractions') {
-      day.attractions = [{ name: suggestion }];
-    } else if (field === 'hotel') {
-      day.hotel = { name: suggestion };
-    }
-
+    const { reply } = await applyChatUpdate(message, itinerary);
     await saveTrip(tripId, itinerary);
-    res.json({ updatedDay: day, interpretation });
+    res.json({ updatedItinerary: itinerary, reply });
   } catch (err) {
     console.error('Update error:', err.response?.data || err.message);
-    res.status(500).json({ error: err.response?.data || err.message });
-  }
-});
-
-router.get('/test-hotels', async (req, res) => {
-  try {
-    const { destination, checkIn, checkOut } = req.query;
-    const hotels = await getHotels(destination, checkIn, checkOut);
-    res.json({ hotels });
-  } catch (err) {
-    console.error('Hotels test error:', err.response?.data || err.message);
     res.status(500).json({ error: err.response?.data || err.message });
   }
 });

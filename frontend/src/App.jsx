@@ -4,7 +4,7 @@ import ItineraryView from './components/ItineraryView';
 import ChatPanel from './components/ChatPanel';
 import SavedTripsView from './components/SavedTripsView';
 import { getTripById } from './api';
-import WarpText from './component/WarpText';
+
 
 function App() {
   const [view, setView] = useState('plan');
@@ -24,27 +24,10 @@ function App() {
     setView('plan');
   }
 
-  function handleDayUpdated(updatedDay) {
-    setItinerary(prev => ({
-      ...prev,
-      days: prev.days.map(d => d.date === updatedDay.date ? updatedDay : d),
-    }));
-  }
-
   async function handleSelectSavedTrip(id) {
     const result = await getTripById(id);
     setViewedTrip({tripId: result.tripId, itinerary: result.itinerary });
     setView('trip-detail');
-  }
-
-  function handleViewedTripDayUpdated(updatedDay) {
-    setViewedTrip(prev => ({
-      ...prev,
-      itinerary: {
-        ...prev.itinerary,
-        days: prev.itinerary.days.map(d => d.date === updatedDay.date ? updatedDay : d),
-      },
-    }));
   }
 
   function handleViewedTripDeleted() {
@@ -58,11 +41,11 @@ function App() {
     setView('saved');
   }
 
-  function handleitineraryUpdated(updatedItinerary) {
+  function handleItineraryUpdated(updatedItinerary) {
     setItinerary(updatedItinerary);
   }
 
-  function handleViewdTripItineraryUpdated(updatedItinerary) {
+  function handleViewedTripItineraryUpdated(updatedItinerary) {
     setViewedTrip(prev => ({ ...prev, itinerary: updatedItinerary}));
   }
 
@@ -91,8 +74,8 @@ function App() {
           </>
         ) : (
           <>
-              <ItineraryView itinerary={itinerary} tripId={tripId} onItineraryChange={handleitineraryUpdated}/>
-              <ChatPanel tripId={tripId} onDayUpdated={handleDayUpdated} onItineraryUpdated={handleitineraryUpdated}/>
+              <ItineraryView itinerary={itinerary} tripId={tripId} onItineraryChange={handleItineraryUpdated}/>
+              <ChatPanel tripId={tripId} onItineraryUpdated={handleItineraryUpdated}/>
           </>
          )}
         </>
@@ -107,14 +90,14 @@ function App() {
 
       {view === 'trip-detail' && viewedTrip && (
         <div className="trip-detail-wrapper">
-          <button className="back-btn" onClick={() => setView('saved')}>← Back to my trips</button>
+          <button className="back-btn" onClick={() => setView('saved')}>Back</button>
           <ItineraryView 
           itinerary={viewedTrip.itinerary} 
           tripId={viewedTrip.tripId}
           onDelete={handleViewedTripDeleted} 
-          onItineraryChange={handleViewdTripItineraryUpdated}
+          onItineraryChange={handleViewedTripItineraryUpdated}
           />
-          <ChatPanel tripId={viewedTrip.tripId} onDayUpdated={handleViewedTripDayUpdated} onItineraryUpdated={handleViewdTripItineraryUpdated}/>
+          <ChatPanel tripId={viewedTrip.tripId} onItineraryUpdated={handleViewedTripItineraryUpdated}/>
         </div>
       )}
     </div>

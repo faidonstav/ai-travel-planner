@@ -1,5 +1,4 @@
 export function calculateDayCosts(day, travelers = 1, itineraryCurrency, isLastDay = false, hotelOptions = []) {
-    console.log('hotelOptions:', hotelOptions, 'itineraryCurrency:', itineraryCurrency);
     const perPersonSum = items =>
         (items || []).reduce((total, item) => total + (Number(item.pricePerPerson) || 0), 0);
 

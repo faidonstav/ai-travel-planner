@@ -38,11 +38,9 @@ function TripInputForm({ onPlanReady }) {
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown ', handleClickOutside);
   }, []);
 
-  function handleRangeSelect(newRange) {
-    setRange(newRange);
-  }
 
   async function handleSubmit(e) {
     e.preventDefault(); // stop the browser from reloading the page on submit
@@ -131,7 +129,7 @@ function TripInputForm({ onPlanReady }) {
               <DayPicker
                 mode="range"
                 selected={range}
-                onSelect={handleRangeSelect}
+                onSelect={setRange}
                 disabled={{ before: today }}
                 startMonth={today}
                 defaultMonth={range?.from || today}

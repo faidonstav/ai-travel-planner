@@ -88,13 +88,13 @@ function ItineraryView({ itinerary, tripId, onDelete, onItineraryChange }) {
         <div>
           <h2>{itinerary.destination}</h2>
           <p className="itinerary-meta">
-            {itinerary.travelers} traveler(s) · {itinerary.currency} {itinerary.budget} · {itinerary.preferences.join(', ') || 'No preferences specified'}
+            {itinerary.travelers} traveler(s) · {itinerary.budget} {itinerary.currency} · {itinerary.preferences.join(', ') || 'No preferences specified'}
           </p>
         </div>
         
         {onDelete ? (
           <button className="save-btn delete-trip-btn" onClick={handleDelete} disabled={deleting}>
-            {deleting ? 'Deliting...' : 'Delete trip'}
+            {deleting ? 'Deleting...' : 'Delete trip'}
           </button>
         ) : (
           <button className="save-btn" onClick={handleSave} disabled={saving || saved}>

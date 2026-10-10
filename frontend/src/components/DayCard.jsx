@@ -42,7 +42,7 @@ function DraggableItem({ id, index, onDelete, name, price }) {
 
 function DayCard({ day, dayNumber, travelers, currency, isLastDay, hotelOptions, onDeleteItem }) {
   const costs = calculateDayCosts(day, travelers, currency, isLastDay, hotelOptions);
-  const formatPrice = (p) => (Number(p) > 0 ? `${p}€` : null);
+  const formatPrice = (p) => (Number(p) > 0 ? `${p} ${currency}` : null);
   return (
     <div className="day-card">
       <div className="day-header">
@@ -53,20 +53,11 @@ function DayCard({ day, dayNumber, travelers, currency, isLastDay, hotelOptions,
       <div className= "weather-section">
         <img src={getWeatherIcons(day.weather.weatherCode)} alt="weather icon" className="weather-icon-img" />
         <div className="weather-details">
-<<<<<<< HEAD
-          <h4><span className="label"></span> {day.weather.minTemp}°C - {day.weather.maxTemp}°C</h4>
-=======
-          <h4> <span className="label"></span>{day.weather.minTemp}°C - {day.weather.maxTemp}°C</h4>
->>>>>>> 2ec5969b80754287a143927c7d316b14a22f354e
-          <p><span className="label"></span> {day.weather.precipitationChance}% rain</p>
+          <h4>{day.weather.minTemp}°C - {day.weather.maxTemp}°C</h4>
+          <p>{day.weather.precipitationChance}% rain</p>
         </div>
       </div>
 
-<<<<<<< HEAD
-      
-=======
-
->>>>>>> 2ec5969b80754287a143927c7d316b14a22f354e
       <div className="section">
         <h3 className="section-label">Attractions</h3>
         <Droppable droppableId={`attractions|${day.date}`}>
@@ -109,10 +100,6 @@ function DayCard({ day, dayNumber, travelers, currency, isLastDay, hotelOptions,
                 price={formatPrice(r.pricePerPerson)}
                 onDelete={() => onDeleteItem(day.date, 'restaurants', index)}
                 >
-<<<<<<< HEAD
-              {r.name} {r.pricePerPerson}
-=======
->>>>>>> 2ec5969b80754287a143927c7d316b14a22f354e
                 </DraggableItem>
               ))}
               {provided.placeholder}

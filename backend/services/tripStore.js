@@ -1,7 +1,5 @@
 const pool = require('../db');
 
-const trips = new Map();
-
 async function saveTrip(tripId, itinerary) {
   await pool.query(
     `INSERT INTO trips (trip_id, itinerary)
