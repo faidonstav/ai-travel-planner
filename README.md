@@ -54,6 +54,16 @@ flowchart LR
     S7 --> PG[(PostgreSQL<br/>trips table)]
 ```
 
+```mermaid
+flowchart LR
+    S1[Validate input] --> S2[Geocode the destination]
+    S2 --> S3[Fetch the weather forecast]
+    S3 --> S4[Fetch hotels]
+    S4 --> S5[Build the itinerary]
+    S5 --> S6[Get daily suggestions from gemini]
+    S6 --> S7[Save trip to PostgreSQL] 
+```
+
 ## Project Structure
 
 ```
