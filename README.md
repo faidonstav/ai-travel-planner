@@ -33,11 +33,7 @@ The entire app isa bases on the use of free-tier APIs.
 | External APIs | Open-Meteo (geocoding + weather), StayingAPI (hotels) |
 
 ## Architecture
-Diagram (simple box diagram is fine): React client → Express routes → services
-(extraction, geocoding, weather, hotels, itinerary, chatUpdate, tripStore) → Gemini / Open-Meteo / StayingAPI / PostgreSQL.
-Then a short description of the `/plan` request flow:
-validate → geocode → weather → hotels → build itinerary → Gemini suggestions → save → respond.
-Mention which steps are non-critical and degrade gracefully (weather, hotels, suggestions).
+System Diagram
 ```mermaid
 flowchart LR
     UI[React + Vite client] -->|REST / JSON| API[Express API<br/>routes/tripRoutes.js]
@@ -53,16 +49,14 @@ flowchart LR
     S4 & S5 --> GM[(Google Gemini)]
     S7 --> PG[(PostgreSQL<br/>trips table)]
 ```
-
-```mermaid
-flowchart LR
-    S1[Validate input] --> S2[Geocode the destination]
-    S2 --> S3[Fetch the weather forecast]
-    S3 --> S4[Fetch hotels]
-    S4 --> S5[Build the itinerary]
-    S5 --> S6[Get daily suggestions from gemini]
-    S6 --> S7[Save trip to PostgreSQL] 
-```
+Request flow for planning a trip
+1. Validate input: non-empty destination, valid ISO date range of a most 14 days, positive budget.
+2. Geocode the destination(Open-Meteo).
+3. Fetch the weather forecast(Open-Meteo). Non-critical: on failure, days are filled with null weather.
+4. Fetch hotels (StayingAPI). Non-critical: on failure the list is empty.
+5. Build the itinerary: one day per forecast date, with the top-rated hotels attatched.
+6. Ask Gemini for daily attractions, restaurants and transport costs. Non-critical: on failure, days keep empty lists.
+7. Save to PostgreSQL and return the JSON.
 
 ## Project Structure
 
