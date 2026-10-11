@@ -38,6 +38,21 @@ Diagram (simple box diagram is fine): React client → Express routes → servic
 Then a short description of the `/plan` request flow:
 validate → geocode → weather → hotels → build itinerary → Gemini suggestions → save → respond.
 Mention which steps are non-critical and degrade gracefully (weather, hotels, suggestions).
+```mermaid
+flowchart LR
+    UI[React + Vite client] -->|REST / JSON| API[Express API<br/>routes/tripRoutes.js]
+    API --> S1[geocodingService]
+    API --> S2[weatherService]
+    API --> S3[hotelsService]
+    API --> S4[extractionService<br/>Gemini suggestions]
+    API --> S5[chatUpdateService<br/>Gemini edits]
+    API --> S6[itineraryService]
+    API --> S7[tripStore]
+    S1 & S2 --> OM[(Open-Meteo)]
+    S3 --> SA[(StayingAPI)]
+    S4 & S5 --> GM[(Google Gemini)]
+    S7 --> PG[(PostgreSQL<br/>trips table)]
+```
 
 ## Project Structure
 Tree of backend/ (routes, services, db, setup script) and frontend/src (components, utils, api.js) with one-line comments.
