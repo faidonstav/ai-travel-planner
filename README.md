@@ -24,6 +24,7 @@ The entire app isa bases on the use of free-tier APIs.
 
 ## Features
 - Trip form: destination, travelers, date-range picker, budget
+- ![Demo of the AI Travel Planner](tripinput.gif)
 - Day-by-day itinerary with weather forecast and icons per day
 - AI-generated attractions, restaurants and local transport, with per-person price estimates
 - Hotel suggestions (rating, nightly and total price, link)
