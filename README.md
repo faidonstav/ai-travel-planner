@@ -49,7 +49,7 @@ flowchart LR
     S4 & S5 --> GM[(Google Gemini)]
     S7 --> PG[(PostgreSQL<br/>trips table)]
 ```
-Request flow for planning a trip
+Request flow for planning a trip:
 1. Validate input: non-empty destination, valid ISO date range of a most 14 days, positive budget.
 2. Geocode the destination(Open-Meteo).
 3. Fetch the weather forecast(Open-Meteo). Non-critical: on failure, days are filled with null weather.
@@ -109,18 +109,6 @@ ai-travel-planner/
 └── README.md
 ```
 
-## Getting Started
-### Prerequisites
-Node version, PostgreSQL, Gemini API key, StayingAPI key
-### Installation
-Clone, install backend, install frontend
-### Environment variables
-Table of every variable in `.env.example` (PORT, GEMINI_API_KEY, STAYINGAPI_KEY, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME) with where to get each key
-### Database setup
-Create the DB, run `node scripts/setupDb.js` (adjust to your real path)
-### Run
-Backend: `npm run dev` (port 5000). Frontend: `npm run dev`.
-
 ## API Reference
 | Method | Endpoint | Description |
 |---|---|---|
@@ -131,29 +119,20 @@ Backend: `npm run dev` (port 5000). Frontend: `npm run dev`.
 | GET | /api/trips/:id | Get one trip |
 | PUT | /api/trips/:id | Overwrite itinerary (drag-drop/delete) |
 | DELETE | /api/trips/:id | Delete a trip |
-Add an example request/response for `/plan`.
 
-## How the AI Is Used
-- Daily suggestions: prompt design, strict JSON output, price estimates, currency
-- Chat updates: the model gets the itinerary, weather, budget and preferences, and returns structured changes
-- Guardrails: output sanitized in code, dates validated against the real itinerary, max 3 items per list, budget check done in code, not by the model
-
-## Design Decisions
-Short bullets with the "why": service-layer separation (swap a provider by editing one file), JSONB storage, graceful degradation, free-tier-only constraints, Gemini JSON key-casing defense.
-
-## Challenges & Lessons Learned
-OpenTripMap 401s, Amadeus decommissioned, Makcorps paid-only → vetting APIs first;
-merging Gemini calls to respect quota; model deprecation; LLM output not matching the schema.
 
 ## Known Limitations
 - AI prices and place names are estimates, not verified or live
-- Hotel data comes from an unofficial sandbox API
+- Gemini calls have limits
 - Weather forecast only reaches about 16 days ahead
-- No authentication: trips are not tied to users
 - Trips capped at 14 days
 
-## Roadmap
-Real attractions API, user accounts, tests, deployment, export/share itinerary, map view.
+## License 
+This project is licensed under the [MIT License](LICENSE).
 
-## License / Author
-Your name, LinkedIn/GitHub link, license (MIT is typical).
+## Author
+
+
+Faidon Stavridis
+- LinkedIn: [linkedin.com](https://www.linkedin.com/in/faidon-stavridis-39b605368/)
+- Email: faidonstav12@gmail.com
