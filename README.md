@@ -6,7 +6,16 @@
 ![Screenshot or GIF of the main flow](docs/demo.gif)
 
 ## Table of Contents
-(Overview · Features · Tech Stack · Architecture · Getting Started · API Reference · Design Decisions · Challenges & Lessons · Limitations · Roadmap)
+
+- [Overview](#overview)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [API Reference](#api-reference)
+- [Known Limitations](#known-limitations)
+- [Author](#author)
+- [License](#license)
 
 ## Overview
 The app allows users to select a destination, the number of travelers, travel dates, and a budget, and based on this information, it creates a comprehensive travel plan. 
@@ -127,12 +136,12 @@ ai-travel-planner/
 - Weather forecast only reaches about 16 days ahead
 - Trips capped at 14 days
 
-## License 
-This project is licensed under the [MIT License](LICENSE).
-
 ## Author
 
 
 Faidon Stavridis
 - LinkedIn: [linkedin.com](https://www.linkedin.com/in/faidon-stavridis-39b605368/)
 - Email: faidonstav12@gmail.com
+
+## License 
+This project is licensed under the [MIT License](LICENSE).
