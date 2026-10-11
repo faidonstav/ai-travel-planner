@@ -55,7 +55,55 @@ flowchart LR
 ```
 
 ## Project Structure
-Tree of backend/ (routes, services, db, setup script) and frontend/src (components, utils, api.js) with one-line comments.
+
+```
+ai-travel-planner/
+├── backend/
+│   ├── server.js                  # Express app entry point, CORS + JSON middleware
+│   ├── db.js                      # PostgreSQL connection pool (pg)
+│   ├── dateRange.js               # Builds/validates the list of trip dates
+│   ├── routes/
+│   │   └── tripRoutes.js          # All /api/trips endpoints; orchestrates the services
+│   ├── services/
+│   │   ├── geocodingService.js    # Destination → coordinates (Open-Meteo)
+│   │   ├── weatherService.js      # Daily forecast (Open-Meteo)
+│   │   ├── hotelsService.js       # Hotel search (StayingAPI)
+│   │   ├── extractionService.js   # Gemini: daily attractions/restaurants/prices
+│   │   ├── chatUpdateService.js   # Gemini: natural-language itinerary edits + budget check
+│   │   ├── itineraryService.js    # Assembles days, attaches hotel and suggestions
+│   │   └── tripStore.js           # CRUD for the trips table
+│   ├── scripts/
+│   │   └── setupDb.js             # Creates the trips table
+│   ├── .env.example               # Required environment variables (no secrets)
+│   └── package.json
+├── frontend/
+│   ├── index.html
+│   ├── vite.config.js
+│   ├── src/
+│   │   ├── main.jsx               # React entry point
+│   │   ├── App.jsx                # Top-level state, tab navigation, view switching
+│   │   ├── api.js                 # All fetch calls to the backend
+│   │   ├── index.css              # Global styles and design tokens
+│   │   ├── components/
+│   │   │   ├── TripInputForm.jsx  # Destination/travelers/date-range/budget form
+│   │   │   ├── ItineraryView.jsx  # Itinerary page; drag-and-drop, save/delete
+│   │   │   ├── DayCard.jsx        # One day: weather, items, expenses
+│   │   │   ├── HotelsSection.jsx  # Hotel suggestions container
+│   │   │   ├── HotelsCard.jsx     # Single hotel card
+│   │   │   ├── TripCostSummary.jsx# Total cost + budget progress bar
+│   │   │   ├── ChatPanel.jsx      # Floating chat widget for AI edits
+│   │   │   └── SavedTripsView.jsx # "My trips" list
+│   │   ├── utils/
+│   │   │   ├── dayCosts.js        # Per-day and trip cost/budget calculations
+│   │   │   ├── formatDate.js      # ISO → DD/MM/YYYY
+│   │   │   ├── ordinal.js         # 1 → "1st"
+│   │   │   └── WeatherIcons.js    # Weather code → icon
+│   │   └── assets/                # Icons and weather images
+│   └── package.json
+├── docs/                          # Screenshots, demo GIF, diagrams
+├── .gitignore
+└── README.md
+```
 
 ## Getting Started
 ### Prerequisites
