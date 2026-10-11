@@ -24,14 +24,18 @@ The entire app isa bases on the use of free-tier APIs.
 
 ## Features
 - Trip form: destination, travelers, date-range picker, budget
-- ![Demo of the AI Travel Planner](tripinput.gif)
+  ![Demo of the AI Travel Planner](tripinput.gif)
 - Day-by-day itinerary with weather forecast and icons per day
 - AI-generated attractions, restaurants and local transport, with per-person price estimates
 - Hotel suggestions (rating, nightly and total price, link)
 - Budget tracker: per-day and trip totals, under/near/over-budget status
+  ![Demo of the AI Travel Planner](itineraryview.gif)
 - Natural-language chat to edit the trip ("cheaper seafood restaurants every day", "something for the rainy day")
+  ![Demo of the AI Travel Planner](chatupdate.gif)
 - Drag-and-drop reordering between days, plus item deletion
+  ![Demo of the AI Travel Planner](dragdrop.gif)
 - Save, reopen and delete trips (PostgreSQL persistence)
+  ![Demo of the AI Travel Planner](savedelete.gif)
 
 ## Tech Stack
 | Layer | Technology |
