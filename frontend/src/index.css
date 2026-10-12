@@ -97,7 +97,7 @@ body {
   padding: 8px;
   border-radius: 20px;
   position: relative;
-  z-index: 5; /* keeps the calendar popover above the panels below */
+  z-index: 5; 
 }
 
 .glass-panel {
@@ -724,7 +724,6 @@ li.dragging .item-price {
   color: var(--deep-berry);
 }
 
-/* Floating container, bottom-right of the screen */
 .chat-widget {
   position: fixed;
   right: 24px;
@@ -736,7 +735,6 @@ li.dragging .item-price {
   gap: 12px;
 }
 
-/* Round button */
 .chat-toggle-btn {
   width: 56px;
   height: 56px;
@@ -797,7 +795,6 @@ li.dragging .item-price {
   color: var(--cream);
 }
 
-/* Make sure the input and Send button look right inside the popup */
 .chat-popup .chat-panel input {
   border: 1px solid rgba(111, 17, 25, 0.3);
   min-width: 0;

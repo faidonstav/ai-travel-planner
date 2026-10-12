@@ -2,8 +2,6 @@ const { askGeminiJson } = require('./geminiClient');
 
 const MAX_ITEMS_PER_LIST = 3;
 
-/* ---------- Weather ---------- */
-
 const isWet = (code) =>
   (code >= 51 && code <= 67) || (code >= 80 && code <= 82) || (code >= 95 && code <= 99);
 const isSnow = (code) => (code >= 71 && code <= 77) || (code >= 85 && code <= 86);
@@ -19,8 +17,6 @@ function describeWeather(w) {
   else if (w.maxTemp <= 3) advice = 'very cold: prefer indoor activities';
   return `${w.minTemp} to ${w.maxTemp}°C, ${w.precipitationChance ?? 0}% chance of rain, ${advice}`;
 }
-
-/* ---------- Budget ---------- */
 
 function estimatePlannedCost(itinerary) {
   const travelers = itinerary.travelers || 1;
@@ -38,7 +34,6 @@ function buildBudgetInfo(itinerary) {
   const travelers = itinerary.travelers || 1;
   const numDays = itinerary.days.length || 1;
 
-  // Assumes the hotel's totalPrice covers the whole stay and is in the trip currency
   const hotel = itinerary.days[0]?.hotel;
   const sameCurrency =
     String(hotel?.currency || '').toUpperCase() === String(itinerary.currency || '').toUpperCase();
@@ -56,8 +51,6 @@ function buildBudgetInfo(itinerary) {
     perPersonPerDay: Math.round(forActivities / travelers / numDays),
   };
 }
-
-/* ---------- Prompt ---------- */
 
 function listItems(list) {
   return (
@@ -139,13 +132,10 @@ Examples:
 - "something for the rainy day" -> changes only for the wet days, with indoor attractions.`;
 }
 
-/* ---------- Gemini call ---------- */
-
 function askGemini(message, itinerary) {
   return askGeminiJson(buildSystemPrompt(itinerary), message);
 }
 
-// Validates a list from Gemini; returns null (= leave the list unchanged) if unusable
 function sanitizeItems(list) {
   if (!Array.isArray(list)) return null;
   const items = list
@@ -158,9 +148,6 @@ function sanitizeItems(list) {
   return items.length ? items : null;
 }
 
-/* ---------- Main entry point ---------- */
-
-// Mutates `itinerary` and returns { reply, changedDays, preferencesAdded }
 async function applyChatUpdate(message, itinerary) {
   // 1. Ask Gemini for a plan
   const plan = await askGemini(message, itinerary);

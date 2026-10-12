@@ -32,8 +32,6 @@ function DraggableItem({ id, index, onDelete, name, price }) {
           </li>
         );
 
-        // While dragging, render into document.body so glass-panel blur ancestors
-        // can't throw off the library's position: fixed calculations
         return snapshot.isDragging ? createPortal(item, document.body) : item;
       }}
     </Draggable>

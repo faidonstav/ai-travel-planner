@@ -59,7 +59,7 @@ function ItineraryView({ itinerary, tripId, onDelete, onItineraryChange }) {
     destDay[destField].splice(destination.index, 0, movedItem);
 
     const updatedItinerary = { ...itinerary, days: updatedDays };
-    onItineraryChange(updatedItinerary); // update the screen immediately
+    onItineraryChange(updatedItinerary); 
 
     updateItinerary(tripId, updatedItinerary).catch(err => {
       console.error('Failed to save reordered itinerary:', err.message);

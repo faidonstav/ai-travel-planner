@@ -14,7 +14,6 @@ async function getWeatherForecast(latitude, longitude, startDate, endDate) {
 
   const daily = response.data.daily;
 
-  // Reshape from Open-Meteo's "columns" format into one object per day — easier to use later
   return daily.time.map((date, i) => ({
     date,
     maxTemp: daily.temperature_2m_max[i],

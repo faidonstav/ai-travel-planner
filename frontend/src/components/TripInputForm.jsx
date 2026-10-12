@@ -4,8 +4,7 @@ import 'react-day-picker/style.css';
 import { planTrip } from '../api';
 import { formatDate } from '../utils/formatDate';
 
-// Build "YYYY-MM-DD" from the date's local parts. toISOString() converts to UTC
-// first, which can shift the date by a day, the same trap as with formatDate.
+
 function toISODate(date){
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -30,7 +29,6 @@ function TripInputForm({ onPlanReady }) {
     return d;
   }, []);
 
-  // Close the calendar when the user clicks anywhere outside the date field
   useEffect(() => {
     function handleClickOutside(e) {
       if (dateFieldRef.current && !dateFieldRef.current.contains(e.target)) {
@@ -43,7 +41,7 @@ function TripInputForm({ onPlanReady }) {
 
 
   async function handleSubmit(e) {
-    e.preventDefault(); // stop the browser from reloading the page on submit
+    e.preventDefault(); 
     
     if (!range?.from) {
       setError('Please choose your travel dates.');
@@ -58,7 +56,7 @@ function TripInputForm({ onPlanReady }) {
       const result = await planTrip({
         destination: destination.trim(),
         startDate: toISODate(range.from),
-        endDate: toISODate(range.to || range.from), // a single clicked day = one-day trip
+        endDate: toISODate(range.to || range.from), 
         budget: Number(budget),
         travelers: Number(travelers),
       });

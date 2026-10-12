@@ -4,13 +4,10 @@ const cors = require('cors');
 const tripRoutes = require('./routes/tripRoutes');
 const app = express();
 
-// Middleware: lets Express read JSON bodies from POST requests
 app.use(express.json());
 
-// Middleware: allows your React frontend (different port) to call this API
 app.use(cors());
 
-// A simple test route
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Travel planner backend is running' });
 });

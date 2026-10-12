@@ -4,7 +4,7 @@ async function getCoordinates(destination) {
   const response = await axios.get('https://geocoding-api.open-meteo.com/v1/search', {
     params: {
       name: destination,
-      count: 1, // just the top match
+      count: 1, 
     },
   });
 

@@ -58,7 +58,6 @@ export function calculateTripCosts(itinerary) {
   const budget = Number(itinerary.budget) || 0;
   const percentUsed = budget > 0 ? (total / budget) * 100 : 0;
 
-  // Adjust the 90 threshold to taste
   let status = 'under';
   if (percentUsed > 100) status = 'over';
   else if (percentUsed >= 90) status = 'near';

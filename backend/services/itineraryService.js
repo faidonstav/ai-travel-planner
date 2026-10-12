@@ -11,8 +11,8 @@ function buildItinerary(tripDetails, weatherForecast, hotels = []) {
       precipitationChance: dayWeather.precipitationChance,
       weatherCode: dayWeather.weatherCode,
     },
-    attractions: [],   // placeholder — fill in once an attractions API is wired up
-    restaurants: [],   // placeholder — same idea, could reuse attractions API later
+    attractions: [],   
+    restaurants: [],   
     hotel: topHotel,     
   }));
 

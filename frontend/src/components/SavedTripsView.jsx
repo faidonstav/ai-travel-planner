@@ -14,7 +14,7 @@ function SavedTripsView({ onSelectTrip }) {
     }, []);
 
     async function handleDelete(e, tripId) {
-        e.stopPropagation(); // prevents the card's onClick (open trip) from also firing
+        e.stopPropagation(); 
 
         if (!window.confirm('Delete this saved trip? This can\'t be undone.')) return;
         try {

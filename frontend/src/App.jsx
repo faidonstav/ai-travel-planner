@@ -31,8 +31,6 @@ function App() {
   }
 
   function handleViewedTripDeleted() {
-    // If the deleted trip is also the one open in the "Plan a trip" tab, clear it,
-    // otherwise that tab would keep showing a trip that no longer exists
     if (viewedTrip?.tripId === tripId) {
       setTripId(null);
       setItinerary(null);
