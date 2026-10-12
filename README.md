@@ -25,23 +25,23 @@ The app provides recommendations for hotels, attractions, and restaurants with e
 ## Features
 - **Plan a trip:** Enter a destination, number of travelers, date range and budget, then generate the plan.
 
-  ![Trip input](tripinput.gif)
+  ![Trip input](docs/tripinput.gif)
   
 - **Itinerary View:** The whole trip appears in one detailed view: a weather forecast for every day, hotel suggestions with details, AI-generated attractions, restaurants and local transport with per-person price estiamtes, and a budget tracker for each day and for the full trip.
 
-  ![Itinerary view](itineraryview.gif)
+  ![Itinerary view](docs/itineraryview.gif)
   
 - **Update Suggestions via chat:** Edit the trip in natural language ("cheaper seafood restaurants for day 2").
   
-  ![Chat update](chatupdate.gif)
+  ![Chat update](docs/chatupdate.gif)
   
 - **Modify suggestions manually:** Drag-and-drop items between days, or delete them.
   
-  ![Drag and drop](dragdrop.gif)
+  ![Drag and drop](docs/dragdrop.gif)
   
 - **Trips list:** Save, reopen and delete trips (PostgreSQL persistence).
   
-  ![Save and delete trips](savedelete.gif)
+  ![Save and delete trips](docs/savedelete.gif)
 
 ## Tech Stack
 | Layer | Technology |
