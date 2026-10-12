@@ -18,21 +18,30 @@
 - [License](#license)
 
 ## Overview
-The app allows users to select a destination, the number of travelers, travel dates, and a budget, and based on this information, it creates a comprehensive travel plan. 
-The app provides recommendations for hotels, attractions, and restaurants along with their respective costs, a weather forecast for each day, and an overall estimate of the trip’s cost. 
-The entire app isa bases on the use of free-tier APIs.
+The AI Travel Planner allows users to enter a destination, the number of travelers, travel dates, and a budget, and creates a complete travel itinerary based on this information.
+The app provides recommendations for hotels, attractions, and restaurants with estimates cost, a daily weather forecast, and a total estimated cost of the trip. Users can modify, save, delete, and even upgrade their travel plan based on their interests. It has been developed entirely using free-tier APIs.
+
 
 ## Features
-- Plan a trip form: User enter the information in the fields for destination, travelers, date range and budget and planning the trip.
-  ![Demo of the AI Travel Planner](tripinput.gif)
-- Itinerary View: After planning, all the data of the trip appears in one fully detailted card. Weather forecast for every day, hotels suggestions with details, AI generated attractions, restaurants and local transport with per-person price estimates, and budget tracker for every day as also for the total trip.
-  ![Demo of the AI Travel Planner](itineraryview.gif)
-- Update Suggestions via chat: Natural-language chat to edit the trip ("cheaper seafood restaurants for day 2")
-  ![Demo of the AI Travel Planner](chatupdate.gif)
-- Modify suggestions: Drag-and-drop reordering between days, plus item deletion
-  ![Demo of the AI Travel Planner](dragdrop.gif)
-- Trips list: Save, reopen and delete trips (PostgreSQL persistence)
-  ![Demo of the AI Travel Planner](savedelete.gif)
+- **Plan a trip:** Enter a destination, number of travelers, date range and budget, then generate the plan.
+
+  ![Trip input](tripinput.gif)
+  
+- **Itinerary View:** The whole trip appears in one detailed view: a weather forecast for every day, hotel suggestions with details, AI-generated attractions, restaurants and local transport with per-person price estiamtes, and a budget tracker for each day and for the full trip.
+
+  ![Itinerary view](itineraryview.gif)
+  
+- **Update Suggestions via chat:** Edit the trip in natural language ("cheaper seafood restaurants for day 2").
+  
+  ![Chat update](chatupdate.gif)
+  
+- **Modify suggestions manually:** Drag-and-drop items between days, or delete them.
+  
+  ![Drag and drop](dragdrop.gif)
+  
+- **Trips list:** Save, reopen and delete trips (PostgreSQL persistence).
+  
+  ![Save and delete trips](savedelete.gif)
 
 ## Tech Stack
 | Layer | Technology |
@@ -44,7 +53,9 @@ The entire app isa bases on the use of free-tier APIs.
 | External APIs | Open-Meteo (geocoding + weather), StayingAPI (hotels) |
 
 ## Architecture
-System Diagram
+
+### System Diagram
+
 ```mermaid
 flowchart LR
     UI[React + Vite client] -->|REST / JSON| API[Express API<br/>routes/tripRoutes.js]
@@ -60,14 +71,16 @@ flowchart LR
     S4 & S5 --> GM[(Google Gemini)]
     S7 --> PG[(PostgreSQL<br/>trips table)]
 ```
-Request flow for planning a trip:
-1. Validate input: non-empty destination, valid ISO date range of a most 14 days, positive budget.
-2. Geocode the destination(Open-Meteo).
-3. Fetch the weather forecast(Open-Meteo). Non-critical: on failure, days are filled with null weather.
-4. Fetch hotels (StayingAPI). Non-critical: on failure the list is empty.
-5. Build the itinerary: one day per forecast date, with the top-rated hotels attatched.
-6. Ask Gemini for daily attractions, restaurants and transport costs. Non-critical: on failure, days keep empty lists.
-7. Save to PostgreSQL and return the JSON.
+
+### Request flow for planning a trip
+
+1. Validate the input: non-empty destination, valid ISO date range of a most 14 days, positive budget.
+2. Geocode the destination (Open-Meteo).
+3. Fetch the weather forecast (Open-Meteo). *Non-critical:* on failure, days are filled with null weather.
+4. Fetch hotels (StayingAPI). *Non-critical:* on failure, the list is empty.
+5. Build the itinerary: one day per forecast date, with the top-rated hotels attached.
+6. Ask Gemini for daily attractions, restaurants and transport costs. *Non-critical:* on failure, days keep empty lists.
+7. Save the trip to PostgreSQL and return it as JSON.
 
 ## Project Structure
 
@@ -133,17 +146,19 @@ ai-travel-planner/
 
 
 ## Known Limitations
-- AI prices and place names are estimates, not verified or live
-- Gemini calls have limits
-- Weather forecast only reaches about 16 days ahead
-- Trips capped at 14 days
+- AI-generated prices and place names are estimates, not verified or live
+- The free Gemini tier has a small request quota; when it is exceeded, suggestions are left empty.
+- The stayingAPI for hotels data, have limit for request calls.
+- Weather forecast only reaches about 16 days ahead.
+- Trips are capped at 14 days.
+- There is no user authentication, so trips are not ties to individual users.
 
 ## Author
 
+**Faidon Stavridis**
 
-Faidon Stavridis
-- LinkedIn: [linkedin.com](https://www.linkedin.com/in/faidon-stavridis-39b605368/)
-- Email: faidonstav12@gmail.com
+- LinkedIn: [Faidon Staviridis](https://www.linkedin.com/in/faidon-stavridis-39b605368/)
 
 ## License 
+
 This project is licensed under the [MIT License](LICENSE).
