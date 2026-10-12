@@ -90,6 +90,11 @@ ai-travel-planner/
 │   ├── server.js                  # Express app entry point, CORS + JSON middleware
 │   ├── db.js                      # PostgreSQL connection pool (pg)
 │   ├── dateRange.js               # Builds/validates the list of trip dates
+|   ├── package-lock.json
+|   ├── package.json 
+|   ├── .env
+|   ├── .gitignore
+|   ├── node_modules  
 │   ├── routes/
 │   │   └── tripRoutes.js          # All /api/trips endpoints; orchestrates the services
 │   ├── services/
@@ -97,16 +102,20 @@ ai-travel-planner/
 │   │   ├── weatherService.js      # Daily forecast (Open-Meteo)
 │   │   ├── hotelsService.js       # Hotel search (StayingAPI)
 │   │   ├── extractionService.js   # Gemini: daily attractions/restaurants/prices
+|   |   ├── geminiClient.js        # Connection with gemini API KEY
 │   │   ├── chatUpdateService.js   # Gemini: natural-language itinerary edits + budget check
 │   │   ├── itineraryService.js    # Assembles days, attaches hotel and suggestions
 │   │   └── tripStore.js           # CRUD for the trips table
 │   ├── scripts/
 │   │   └── setupDb.js             # Creates the trips table
-│   ├── .env.example               # Required environment variables (no secrets)
-│   └── package.json
 ├── frontend/
 │   ├── index.html
 │   ├── vite.config.js
+|   ├── eslint.config.js
+|   ├── package-lock.json
+|   ├── package.json
+|   ├── .gitignore
+|   ├── node_modules
 │   ├── src/
 │   │   ├── main.jsx               # React entry point
 │   │   ├── App.jsx                # Top-level state, tab navigation, view switching
@@ -127,7 +136,6 @@ ai-travel-planner/
 │   │   │   ├── ordinal.js         # 1 → "1st"
 │   │   │   └── WeatherIcons.js    # Weather code → icon
 │   │   └── assets/                # Icons and weather images
-│   └── package.json
 ├── docs/                          # Screenshots, demo GIF, diagrams
 ├── .gitignore
 └── README.md
