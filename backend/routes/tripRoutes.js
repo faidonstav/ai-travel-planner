@@ -53,7 +53,10 @@ router.post('/plan', async (req, res) => {
     // 4. Hotels are non-critical too
     let hotels = [];
     try {
-      hotels = await getHotels(destination, startDate, endDate);
+      hotels = await getHotels(destination, startDate, endDate, {
+        adults: Number(travelers) || 1,
+        currency,
+      });
     } catch (hotelErr) {
       console.error('Hotel fetch failed, continuing without hotels:', hotelErr.response?.data || hotelErr.message);
     }
